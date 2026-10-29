@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pronos entre amis</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<style>
+:root{--bg:#0f1226;--card:#1b1f3b;--violet:#7c4dff;--rose:#ff4d8d;--jaune:#ffd23f;--vert:#2ee59d;--rouge:#ff5470;--texte:#f2f3ff;--gris:#9aa0c9}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,Segoe UI,Roboto,sans-serif}
+body{background:radial-gradient(circle at top,#232857,var(--bg));color:var(--texte);min-height:100vh;padding-bottom:80px}
+header{padding:18px;text-align:center;background:linear-gradient(90deg,var(--violet),var(--rose));box-shadow:0 4px 20px #0006}
+header h1{font-size:1.5rem}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#12152e;border-top:1px solid #ffffff22;z-index:10}
+nav button{flex:1;padding:14px 4px;background:none;border:none;color:var(--gris);font-size:.8rem;cursor:pointer}
+nav button.actif{color:var(--jaune);font-weight:bold}
+nav button span{display:block;font-size:1.3rem}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 6px 18px #0005}
+h2{margin-bottom:12px;color:var(--jaune)}
+input,select{width:100%;padding:12px;margin:6px 0;border-radius:12px;border:1px solid #ffffff33;background:#12152e;color:var(--texte);font-size:1rem}
+button.gros{width:100%;padding:13px;margin-top:8px;border:none;border-radius:12px;font-size:1rem;font-weight:bold;color:#fff;background:linear-gradient(90deg,var(--violet),var(--rose));cursor:pointer}
+.lien{background:none;border:none;color:var(--jaune);text-decoration:underline;cursor:pointer;margin-top:10px}
+.match .titre{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:8px;gap:8px}
+.badge{font-size:.75rem;padding:3px 8px;border-radius:20px;background:var(--violet);white-space:nowrap}
+.choix{display:flex;gap:6px}
+.choix button{flex:1;padding:10px 2px;border-radius:10px;border:2px solid #ffffff33;background:#12152e;color:var(--texte);cursor:pointer;font-size:.85rem}
+.choix button.sel{border-color:var(--vert);background:#2ee59d33}
+.petit{color:var(--gris);font-size:.8rem;margin-top:4px}
+.rang{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #ffffff15}
+.rang .num{width:30px;font-weight:bold;font-size:1.1rem}
+.rang .nom{flex:1}
+.rang .pts{font-weight:bold;color:var(--vert)}
+.onglets{display:flex;gap:8px;margin-bottom:12px}
+.onglets button{flex:1;padding:10px;border-radius:12px;border:none;background:#12152e;color:var(--gris);cursor:pointer}
+.onglets button.actif{background:var(--violet);color:#fff}
+#chatBox{height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.msg{max-width:80%;padding:8px 12px;border-radius:14px;background:#12152e}
+.msg.moi{align-self:flex-end;background:var(--violet)}
+.msg b{display:block;font-size:.75rem;color:var(--jaune)}
+.msg .sig{background:none;border:none;color:var(--gris);font-size:.7rem;cursor:pointer}
+.ligne{display:flex;gap:8px}
+.ligne input{margin:0}
+.ligne button{padding:0 18px;border:none;border-radius:12px;background:var(--vert);font-weight:bold;cursor:pointer}
+#anim{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000a;z-index:50;text-align:center;perspective:800px}
+#anim .objet{font-size:7rem}
+#anim.gagne .objet{animation:tourne 2s ease-in-out}
+#anim.perdu .objet{animation:tombe 1.6s ease-in}
+#anim p{font-size:1.6rem;font-weight:bold;margin-top:14px}
+@keyframes tourne{0%{transform:rotateY(0) scale(.3)}60%{transform:rotateY(720deg) scale(1.3)}100%{transform:rotateY(1080deg) scale(1)}}
+@keyframes tombe{0%{transform:rotateX(0) translateY(-200px) scale(1.2)}70%{transform:rotateX(70deg) translateY(30px) scale(1)}100%{transform:rotateX(80deg) translateY(60px) scale(.85)}}
+.cache{display:none}
+</style>
+</head>
+<body>
+
+<header><h1>⚽🏀🏒 Pronos entre amis</h1></header>
+
+<div id="anim" onclick="this.style.display='none'"><div class="objet" id="animObjet"></div><p id="animTexte"></p><div class="petit">Touche pour fermer</div></div>
+
+<main>
+
+<section id="vueAuth">
+  <div class="card">
+    <h2 id="authTitre">Inscription gratuite</h2>
+    <input id="pseudo" placeholder="Ton pseudo">
+    <input id="email" type="email" placeholder="Ton adresse e-mail">
+    <input id="mdp" type="password" placeholder="Ton mot de passe (6 caractères minimum)">
+    <button class="gros" id="btnAuth">Je m'inscris</button>
+    <button class="lien" id="basculer">J'ai déjà un compte, me connecter</button>
+    <div class="petit" id="authMsg"></div>
+  </div>
+</section>
+
+<section id="vueApp" class="cache">
+
+  <div id="pageMatchs">
+    <div class="card"><h2>Matchs à pronostiquer</h2>
+      <select id="filtreSport">
+        <option value="">Tous les sports</option>
+        <option value="football">⚽ Football</option>
+        <option value="basket">🏀 Basket</option>
+        <option value="hockey">🏒 Hockey</option>
+      </select>
+    </div>
+    <div id="listeMatchs"></div>
+    <div class="card">
+      <h2>Ajouter un match</h2>
+      <select id="nvSport"><option value="football">⚽ Football</option><option value="basket">🏀 Basket</option><option value="hockey">🏒 Hockey</option></select>
+      <input id="nvComp" placeholder="Compétition (ex : Ligue 1)">
+      <input id="nvDom" placeholder="Équipe à domicile">
+      <input id="nvExt" placeholder="Équipe à l'extérieur">
+      <input id="nvDate" type="datetime-local">
+      <button class="gros" id="btnAjoutMatch">Ajouter le match</button>
+    </div>
+  </div>
+
+  <div id="pageClassement" class="cache">
+    <div class="card">
+      <h2>🏆 Classement</h2>
+      <div class="onglets">
+        <button id="ongSemaine" class="actif">Semaine</button>
+        <button id="ongMois">Mois</button>
+        <button id="ongTout">Total</button>
+      </div>
+      <div id="classement"></div>
+    </div>
+    <div class="card"><h2>📈 Graphique des points</h2><canvas id="graph" height="220"></canvas></div>
+    <div class="card"><h2>🔥 Tendances</h2><canvas id="graphTendance" height="220"></canvas></div>
+  </div>
+
+  <div id="pageChat" class="cache">
+    <div class="card"><h2>💬 Chat</h2>
+      <div id="chatBox"></div>
+      <div class="ligne"><input id="chatTexte" maxlength="500" placeholder="Écris un message…"><button id="chatEnvoi">Envoyer</button></div>
+    </div>
+  </div>
+
+  <div id="pageProfil" class="cache">
+    <div class="card"><h2>👤 Mon profil</h2>
+      <p id="monPseudo"></p><p class="petit" id="monStat"></p>
+      <button class="gros" id="btnDeco">Me déconnecter</button>
+    </div>
+  </div>
+
+  <nav>
+    <button class="actif" data-page="pageMatchs"><span>⚽</span>Matchs</button>
+    <button data-page="pageClassement"><span>🏆</span>Classement</button>
+    <button data-page="pageChat"><span>💬</span>Chat</button>
+    <button data-page="pageProfil"><span>👤</span>Profil</button>
+  </nav>
+</section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://herjmwgirdrpfawwsfec.supabase.co";
+const SUPABASE_CLE = "sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_CLE);
+const $ = id => document.getElementById(id);
+let moi = null, modeInscription = true, periode = 'semaine';
+let graphA = null, graphB = null, chatTimer = null;
+
+function echap(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+function debutPeriode(p){
+  const d=new Date();
+  if(p==='semaine'){const j=(d.getDay()+6)%7;d.setDate(d.getDate()-j);d.setHours(0,0,0,0);return d;}
+  if(p==='mois'){return new Date(d.getFullYear(),d.getMonth(),1);}
+  return new Date(2000,0,1);
+}
+function animation(gagne){
+  const a=$('anim');a.className=gagne?'gagne':'perdu';
+  $('animObjet').textContent=gagne?'🏆':'💔';
+  $('animTexte').textContent=gagne?'Bien joué, pronostic gagné !':'Raté… ce sera pour la prochaine !';
+  a.style.display='flex';
+  if(gagne){confetti({particleCount:180,spread:90,origin:{y:.6}});}
+  setTimeout(()=>a.style.display='none',3500);
+}
+
+$('basculer').onclick=()=>{
+  modeInscription=!modeInscription;
+  $('authTitre').textContent=modeInscription?'Inscription gratuite':'Connexion';
+  $('btnAuth').textContent=modeInscription?"Je m'inscris":'Je me connecte';
+  $('pseudo').style.display=modeInscription?'block':'none';
+  $('basculer').textContent=modeInscription?"J'ai déjà un compte, me connecter":"Pas de compte ? M'inscrire";
+};
+$('btnAuth').onclick=async()=>{
+  const email=$('email').value.trim(),mdp=$('mdp').value,pseudo=$('pseudo').value.trim();
+  $('authMsg').textContent='';
+  if(modeInscription){
+    if(pseudo.length<3){$('authMsg').textContent='Choisis un pseudo de 3 lettres minimum.';return;}
+    const {data,error}=await sb.auth.signUp({email,password:mdp});
+    if(error){$('authMsg').textContent='Erreur : '+error.message;return;}
+    if(!data.session){$('authMsg').textContent='Compte créé. Vérifie tes e-mails pour confirmer, puis connecte-toi.';return;}
+    const {error:e2}=await sb.from('profiles').insert({id:data.user.id,pseudo});
+    if(e2){$('authMsg').textContent='Pseudo déjà pris ou invalide, essaie un autre.';return;}
+  }else{
+    const {error}=await sb.auth.signInWithPassword({email,password:mdp});
+    if(error){$('authMsg').textContent='Connexion impossible : '+error.message;return;}
+  }
+  demarrer();
+};
+$('btnDeco').onclick=async()=>{await sb.auth.signOut();location.reload();};
+
+async function demarrer(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user)return;
+  const {data:prof}=await sb.from('profiles').select('*').eq('id',user.id).single();
+  moi=prof?{id:user.id,pseudo:prof.pseudo}:null;
+  if(!moi){$('authMsg').textContent="Profil introuvable. Reconnecte-toi ou réinscris-toi.";return;}
+  $('vueAuth').classList.add('cache');$('vueApp').classList.remove('cache');
+  $('monPseudo').textContent='Pseudo : '+moi.pseudo;
+  chargerMatchs();chargerChat();
+  if(!chatTimer)chatTimer=setInterval(chargerChat,5000);
+}
+
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('actif'));b.classList.add('actif');
+  ['pageMatchs','pageClassement','pageChat','pageProfil'].forEach(p=>$(p).classList.add('cache'));
+  $(b.dataset.page).classList.remove('cache');
+  if(b.dataset.page==='pageClassement')chargerClassement();
+  if(b.dataset.page==='pageProfil')chargerStat();
+});
+
+$('filtreSport').onchange=chargerMatchs;
+async function chargerMatchs(){
+  let q=sb.from('matches').select('*').order('date_match',{ascending:true});
+  if($('filtreSport').value)q=q.eq('sport',$('filtreSport').value);
+  const {data:matchs}=await q;
+  const {data:mes}=await sb.from('predictions').select('*').eq('user_id',moi.id);
+  const parMatch={};(mes||[]).forEach(p=>parMatch[p.match_id]=p);
+  const icone={football:'⚽',basket:'🏀',hockey:'🏒'};
+  $('listeMatchs').innerHTML=(matchs||[]).map(m=>{
+    const p=parMatch[m.id],ferme=m.termine||new Date(m.date_match)<new Date();
+    const date=new Date(m.date_match).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'});
+    const btn=(v,l)=>`<button class="${p&&p.choix===v?'sel':''}" ${ferme?'disabled':''} onclick="pronostiquer(${m.id},'${v}')">${l}</button>`;
+    const score=m.termine?`<div class="petit">Score final : ${m.score_domicile} - ${m.score_exterieur}</div>`:'';
+    const gain=(m.termine&&p)?`<div class="petit">${p.points>0?'✅ +'+p.points+' points':'❌ 0 point'}</div>`:'';
+    const adminBtn=(!m.termine&&new Date(m.date_match)<new Date())?`<button class="lien" onclick="saisirScore(${m.id})">Saisir le score final</button>`:'';
+    return `<div class="card match"><div class="titre"><span>${icone[m.sport]} ${echap(m.equipe_domicile)} – ${echap(m.equipe_exterieur)}</span><span class="badge">${echap(m.competition||m.sport)}</span></div>
+    <div class="petit">${date}</div>
+    <div class="choix">${btn('domicile','1 (dom.)')}${btn('nul','Nul')}${btn('exterieur','2 (ext.)')}</div>${score}${gain}${adminBtn}</div>`;
+  }).join('')||'<div class="card">Aucun match pour l\'instant. Ajoute le premier ci-dessous !</div>';
+}
+window.pronostiquer=async(match_id,choix)=>{
+  const {error}=await sb.from('predictions').upsert({user_id:moi.id,match_id,choix},{onConflict:'user_id,match_id'});
+  if(error)alert('Impossible : '+error.message);
+  chargerMatchs();
+};
+$('btnAjoutMatch').onclick=async()=>{
+  const m={sport:$('nvSport').value,competition:$('nvComp').value,equipe_domicile:$('nvDom').value.trim(),equipe_exterieur:$('nvExt').value.trim(),date_match:$('nvDate').value};
+  if(!m.equipe_domicile||!m.equipe_exterieur||!m.date_match){alert('Remplis les équipes et la date.');return;}
+  const {error}=await sb.from('matches').insert(m);
+  if(error){alert("Impossible d'ajouter le match : "+error.message);return;}
+  ['nvComp','nvDom','nvExt','nvDate'].forEach(i=>$(i).value='');chargerMatchs();
+};
+window.saisirScore=async id=>{
+  const d=parseInt(prompt("Buts / points de l'équipe à domicile ?"));const e=parseInt(prompt("Buts / points de l'équipe à l'extérieur ?"));
+  if(isNaN(d)||isNaN(e))return;
+  const {error}=await sb.rpc('cloturer_match',{p_match:id,p_dom:d,p_ext:e});
+  if(error){alert('Clôture impossible : '+error.message);return;}
+  const {data}=await sb.from('predictions').select('*').eq('match_id',id).eq('user_id',moi.id).maybeSingle();
+  if(data)animation(data.points>0);
+  chargerMatchs();
+};
+
+['Semaine','Mois','Tout'].forEach(n=>$('ong'+n).onclick=()=>{
+  periode=n.toLowerCase();
+  ['Semaine','Mois','Tout'].forEach(x=>$('ong'+x).classList.remove('actif'));$('ong'+n).classList.add('actif');
+  chargerClassement();
+});
+async function chargerClassement(){
+  const debut=debutPeriode(periode).toISOString();
+  const {data:preds}=await sb.from('predictions').select('user_id,points,created_at').gte('created_at',debut);
+  const {data:profs}=await sb.from('profiles').select('id,pseudo');
+  const nom={};(profs||[]).forEach(p=>nom[p.id]=p.pseudo);
+  const tot={};(preds||[]).forEach(p=>tot[p.user_id]=(tot[p.user_id]||0)+(p.points||0));
+  (profs||[]).forEach(p=>{if(!(p.id in tot))tot[p.id]=0;});
+  const liste=Object.entries(tot).sort((a,b)=>b[1]-a[1]);
+  const medaille=['🥇','🥈','🥉'];
+  $('classement').innerHTML=liste.map(([id,pts],i)=>`<div class="rang"><div class="num">${medaille[i]||i+1}</div><div class="nom">${echap(nom[id]||'?')}${id===moi.id?' (moi)':''}</div><div class="pts">${pts} pts</div></div>`).join('');
+  const top=liste.slice(0,8);
+  if(graphA)graphA.destroy();
+  graphA=new Chart($('graph'),{type:'bar',data:{labels:top.map(x=>nom[x[0]]),datasets:[{label:'Points',data:top.map(x=>x[1]),backgroundColor:['#7c4dff','#ff4d8d','#ffd23f','#2ee59d','#4dc3ff','#ff9f4d','#b04dff','#ff5470']}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#f2f3ff'}},y:{ticks:{color:'#f2f3ff'},beginAtZero:true}}}});
+  const jours={};(preds||[]).forEach(p=>{const j=p.created_at.slice(0,10);jours[j]=jours[j]||{};jours[j][p.user_id]=(jours[j][p.user_id]||0)+(p.points||0);});
+  const ordre=Object.keys(jours).sort();const couleurs=['#ffd23f','#ff4d8d','#2ee59d'];
+  const series=liste.slice(0,3).map(([id],k)=>{let c=0;return{label:nom[id],borderColor:couleurs[k],backgroundColor:couleurs[k],tension:.35,data:ordre.map(j=>c+=(jours[j][id]||0))};});
+  if(graphB)graphB.destroy();
+  graphB=new Chart($('graphTendance'),{type:'line',data:{labels:ordre.map(j=>j.slice(5)),datasets:series},options:{plugins:{legend:{labels:{color:'#f2f3ff'}}},scales:{x:{ticks:{color:'#f2f3ff'}},y:{ticks:{color:'#f2f3ff'},beginAtZero:true}}}});
+}
+async function chargerStat(){
+  const {data}=await sb.from('predictions').select('points').eq('user_id',moi.id);
+  const n=(data||[]).length,g=(data||[]).filter(p=>p.points>0).length;
+  $('monStat').textContent=n?`${n} pronostics, ${g} gagnés (${Math.round(100*g/n)} %)`:'Pas encore de pronostic.';
+}
+
+async function chargerChat(){
+  if(!moi)return;
+  const {data:msgs}=await sb.from('messages').select('*').order('created_at',{ascending:false}).limit(60);
+  const {data:profs}=await sb.from('profiles').select('id,pseudo');
+  const nom={};(profs||[]).forEach(p=>nom[p.id]=p.pseudo);
+  let masques=[];try{masques=JSON.parse(localStorage.getItem('masques')||'[]');}catch(e){}
+  $('chatBox').innerHTML=(msgs||[]).reverse().filter(m=>!masques.includes(m.id)).map(m=>`<div class="msg ${m.user_id===moi.id?'moi':''}"><b>${echap(nom[m.user_id]||'?')}</b>${echap(m.contenu)}${m.user_id!==moi.id?` <button class="sig" onclick="masquer(${m.id})">masquer</button>`:''}</div>`).join('');
+  $('chatBox').scrollTop=$('chatBox').scrollHeight;
+}
+window.masquer=id=>{let l=[];try{l=JSON.parse(localStorage.getItem('masques')||'[]');}catch(e){}l.push(id);try{localStorage.setItem('masques',JSON.stringify(l));}catch(e){}chargerChat();};
+$('chatEnvoi').onclick=async()=>{
+  const t=$('chatTexte').value.trim();if(!t)return;
+  const {error}=await sb.from('messages').insert({user_id:moi.id,contenu:t});
+  if(error){alert('Message non envoyé : '+error.message);return;}
+  $('chatTexte').value='';chargerChat();
+};
+$('chatTexte').addEventListener('keydown',e=>{if(e.key==='Enter')$('chatEnvoi').click();});
+
+(async()=>{const {data:{session}}=await sb.auth.getSession();if(session)demarrer();})();
+</script>
+</body>
+</html>
