@@ -156,21 +156,27 @@ nav button.actif{color:var(--c);text-shadow:0 0 10px var(--c)}nav span{display:b
 @media(prefers-reduced-motion:reduce){.casinoFX *,.heroStage,.heroCrown,.landingHero:after{animation:none!important}}
 
 
-/* Notifications temps réel : toast néon et bouton de permission navigateur */
-#notificationBtn{position:fixed;right:14px;top:14px;z-index:30;border:1px solid #ffd23f99;border-radius:999px;padding:9px 13px;background:linear-gradient(120deg,#241344,#071a32);color:#ffe58a;font-weight:800;box-shadow:0 0 16px #ffd23f44;}
-#notificationToast{position:fixed;left:50%;top:68px;transform:translate(-50%,-18px);z-index:50;width:min(92vw,430px);padding:13px 16px;border:1px solid #00f0ff;border-radius:14px;background:linear-gradient(120deg,#10102df2,#17294af2);color:#fff;box-shadow:0 0 22px #00d9ff88,0 0 35px #ff2bd644;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;text-align:left;font-weight:700;}
-#notificationToast.visible{opacity:1;transform:translate(-50%,0)}
-#notificationToast small{display:block;color:#9defff;font-weight:500;margin-top:4px}
-@keyframes notifGlow{0%,100%{box-shadow:0 0 12px #00f0ff55}50%{box-shadow:0 0 25px #ff2bd6aa,0 0 36px #ffd23f66}}
-#notificationBtn{animation:notifGlow 3s ease-in-out infinite}
-@media(max-width:600px){#notificationBtn{top:auto;bottom:100px;right:12px;font-size:.78rem;padding:8px 10px}}
+/* Message quotidien du propriétaire : panneau éditorial néon en relief */
+.dailyWrap{position:relative;margin:12px 0 18px;perspective:900px}
+.dailyPublic{position:relative;overflow:hidden;padding:20px 18px;border:1px solid #ffd879aa;border-radius:18px;background:linear-gradient(135deg,#241044f2,#071c38f2 55%,#321047f2);box-shadow:0 0 18px #ffbd4255,inset 0 1px #fff5,0 12px 28px #0009;transform-style:preserve-3d}
+.dailyPublic:before{content:"✦  MESSAGE DU JOUR  ✦";display:block;text-align:center;font-size:.68rem;font-weight:1000;letter-spacing:3px;color:#ffe7a1;text-shadow:0 0 12px #ffb52e;margin-bottom:10px;animation:dailyGlow 2.8s ease-in-out infinite}
+.dailyPublic:after{content:"✧";position:absolute;right:14px;top:8px;font-size:2.1rem;color:#fff2b4;text-shadow:0 0 16px #ffd23f;animation:sparkle 2s infinite}
+.dailyPublicText{font-size:clamp(1.1rem,3.6vw,1.65rem);font-weight:1000;line-height:1.35;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;color:#fff;text-shadow:0 2px 0 #6e3b08,0 4px 0 #30144c,0 0 10px #00d9ff,0 0 24px #ff2bd6;animation:dailyFloat 4s ease-in-out infinite}
+.dailyPublicDate{text-align:center;color:#b9eaff;font-size:.72rem;margin-top:10px;letter-spacing:1px}
+.dailyAdmin{border:1px solid #00eaff88;background:linear-gradient(145deg,#071d35f2,#100824f2);box-shadow:0 0 18px #00d9ff22}
+.dailyAdmin h3{color:#ffe08a;text-shadow:0 0 12px #ffb52e}
+.dailyAdmin textarea{min-height:95px;resize:vertical}
+.dailyAdminActions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.dailyAdminActions button{flex:1;min-width:130px}
+@keyframes dailyGlow{0%,100%{opacity:.75;filter:brightness(.9)}50%{opacity:1;filter:brightness(1.7)}}
+@keyframes dailyFloat{0%,100%{transform:translateY(0) rotateX(0deg)}50%{transform:translateY(-3px) rotateX(2deg)}}
+@media(prefers-reduced-motion:reduce){.dailyPublic:before,.dailyPublicText{animation:none!important}}
+
 </style>
 </head>
 <body>
 <canvas id="fond"></canvas>
 <header id="entete" class="cache"><h1>LE LABO DU CLOS</h1><div id="horloge"></div><div id="enligne">🟢 Présence en cours de connexion…</div></header>
-<button id="notificationBtn" type="button" class="cache" aria-label="Activer les notifications">🔔 Activer les alertes</button>
-<div id="notificationToast" role="status" aria-live="polite"></div>
 <audio id="musiqueFond" src="assets/epic-history.mp3" preload="none" loop></audio>
 <button id="sonBtn" type="button" aria-pressed="false">♫ Musique : désactivée</button>
 <div id="anim" onclick="fermerAnim()"><canvas id="scene3d"></canvas><button id="animFermer" type="button" onclick="event.stopPropagation();fermerAnim()">Fermer ✕</button><p id="animTexte"></p></div>
@@ -221,6 +227,19 @@ nav button.actif{color:var(--c);text-shadow:0 0 10px var(--c)}nav span{display:b
   </div>
 </section>
 <section id="vueApp" class="cache">
+  <div class="dailyWrap">
+    <div class="dailyPublic" id="dailyPublic" aria-live="polite">
+      <div class="dailyPublicText" id="dailyPublicText">Le message du jour arrive bientôt…</div>
+      <div class="dailyPublicDate" id="dailyPublicDate"></div>
+    </div>
+    <div class="card dailyAdmin cache" id="dailyAdmin">
+      <h3>👑 Publier le message du jour</h3>
+      <p class="petit">Cette zone est réservée à l’administrateur. Ton message sera visible par tous les membres aujourd’hui.</p>
+      <textarea id="dailyMessageInput" maxlength="700" placeholder="Écris ton message pour tous les membres…"></textarea>
+      <div class="dailyAdminActions"><button class="gros" id="dailyPublishBtn" type="button">✨ Publier pour aujourd’hui</button><button class="smallbtn" id="dailyRefreshBtn" type="button">Actualiser</button></div>
+      <div class="petit" id="dailyAdminStatus" role="status" aria-live="polite"></div>
+    </div>
+  </div>
   <div id="pageMatchs">
     <div class="hero"><h1 style="font-size:2rem">LE LABO DU CLOS</h1><p>Prédire. Marquer. Briller.</p></div>
     <div class="card"><h2>Matchs à pronostiquer</h2>
@@ -274,7 +293,7 @@ const SUPABASE_URL='https://herjmwgirdrpfawwsfec.supabase.co';
 const SUPABASE_CLE='sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_CLE);
 const $=id=>document.getElementById(id);
-let moi=null,estAdmin=false,periode='semaine',graphA=null,graphB=null,profs=[],enLigne=[],preds={},brouillon={},presenceChannel=null,chatChannel=null,matchesChannel=null,sonActif=false,audioCtx=null,toastTimer=null;
+let moi=null,estAdmin=false,periode='semaine',graphA=null,graphB=null,profs=[],enLigne=[],preds={},brouillon={},presenceChannel=null,chatChannel=null,sonActif=false,audioCtx=null;
 const redirectUrl=location.origin+location.pathname;
 
 function echap(t){const d=document.createElement('div');d.textContent=t==null?'':String(t);return d.innerHTML;}
@@ -308,36 +327,26 @@ function jouer3d(gagne){try{if(!R3){R3=new THREE.WebGLRenderer({canvas:$('scene3
 function fermerAnim(){if($('anim'))$('anim').style.display='none';cancelAnimationFrame(raf);}
 function animation(gagne){$('animTexte').textContent=gagne?'Bien joué, pronostic gagné ! ✨':'Aïe… ce sera pour la prochaine !';$('anim').style.display='block';jouer3d(gagne);if(gagne)confetti({particleCount:200,spread:100,origin:{y:.6},colors:['#00f0ff','#ff2bd6','#ffd23f','#b6ff3b'],shapes:['star','circle']});setTimeout(fermerAnim,5500);}
 
-// Notifications en direct : alertes dans l'application et notifications navigateur si autorisées.
-function afficherAlerte(titre,detail){
- const box=$('notificationToast');if(!box)return;
- box.innerHTML='';const strong=document.createElement('strong');strong.textContent=titre;const small=document.createElement('small');small.textContent=detail||'';box.append(strong,small);box.classList.add('visible');
- clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.remove('visible'),6500);
- if('Notification' in window && Notification.permission==='granted'){
-   try{const n=new Notification(titre,{body:detail||'Le Labo du Clos',icon:'',tag:'labo-'+Date.now()});n.onclick=()=>{window.focus();n.close();};}catch(e){console.warn('Notification navigateur indisponible',e);}
- }
-}
-$('notificationBtn').onclick=async()=>{
- if(!('Notification' in window)){afficherAlerte('Notifications navigateur indisponibles','Les alertes dans l’application restent actives tant que la page est ouverte.');return;}
- try{const permission=await Notification.requestPermission();if(permission==='granted'){$('notificationBtn').textContent='🔔 Alertes activées';afficherAlerte('Notifications activées !','Tu seras averti des nouveaux matchs et messages pendant que l’application est ouverte.');}
- else{$('notificationBtn').textContent='🔔 Autorisation refusée';afficherAlerte('Autorisation non accordée','Tu peux autoriser les notifications dans les réglages du navigateur.');}}
- catch(e){afficherAlerte('Activation impossible','Vérifie les réglages de notifications de ton navigateur.');}
-};
-function majBoutonNotifications(){const b=$('notificationBtn');if(!b)return;b.classList.remove('cache');if(!('Notification' in window))b.textContent='🔔 Alertes dans l’app';else b.textContent=Notification.permission==='granted'?'🔔 Alertes activées':'🔔 Activer les alertes';}
-
 // Authentification + réinitialisation de mot de passe
 $('basculer').onclick=()=>{modeInscription=!modeInscription;$('authTitre').textContent=modeInscription?'Inscription gratuite':'Connexion';$('btnAuth').textContent=modeInscription?'Je m’inscris':'Je me connecte';$('pseudo').classList.toggle('cache',!modeInscription);$('motOublie').classList.toggle('cache',modeInscription);$('basculer').textContent=modeInscription?'J’ai déjà un compte, me connecter':'Pas de compte ? M’inscrire';$('mdp').autocomplete=modeInscription?'new-password':'current-password';};
 $('motOublie').onclick=async()=>{const email=$('email').value.trim();if(!email){$('authMsg').textContent='Saisis ton adresse e-mail, puis reclique sur « Mot de passe oublié ». ';return;}const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:redirectUrl});$('authMsg').textContent=error?'Envoi impossible : '+error.message:'Si cette adresse correspond à un compte, un lien de réinitialisation va être envoyé. Vérifie aussi les courriers indésirables.';};
 $('btnNouveauMdp').onclick=async()=>{const p=$('nouveauMdp').value;if(p.length<6){$('resetMsg').textContent='Le mot de passe doit contenir au moins 6 caractères.';return;}const {error}=await sb.auth.updateUser({password:p});$('resetMsg').textContent=error?'Mise à jour impossible : '+error.message:'Mot de passe modifié. Tu peux maintenant continuer.';if(!error){$('resetCard').classList.add('cache');$('nouveauMdp').value='';}};
 sb.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY')$('resetCard').classList.remove('cache');});
 $('btnAuth').onclick=async()=>{const email=$('email').value.trim(),mdp=$('mdp').value,pseudo=$('pseudo').value.trim();$('authMsg').textContent='';if(!email||!mdp){$('authMsg').textContent='Renseigne ton e-mail et ton mot de passe.';return;}if(modeInscription){if(pseudo.length<3){$('authMsg').textContent='Choisis un pseudo de 3 caractères minimum.';return;}if(mdp.length<6){$('authMsg').textContent='Le mot de passe doit contenir au moins 6 caractères.';return;}const {data,error}=await sb.auth.signUp({email,password:mdp,options:{data:{pseudo}}});if(error){$('authMsg').textContent='Erreur : '+error.message;return;}if(!data.session){$('authMsg').textContent='Compte créé. Vérifie tes e-mails pour confirmer, puis connecte-toi. Si la création automatique du profil n’est pas configurée, un administrateur devra le créer.';return;}const {error:e2}=await sb.from('profiles').upsert({id:data.user.id,pseudo},{onConflict:'id'});if(e2){$('authMsg').textContent='Compte créé, mais profil non enregistré : '+e2.message;return;}}else{const {error}=await sb.auth.signInWithPassword({email,password:mdp});if(error){$('authMsg').textContent='Connexion impossible : '+error.message;return;}}await demarrer();};
-$('btnDeco').onclick=async()=>{if(presenceChannel)await sb.removeChannel(presenceChannel);if(chatChannel)await sb.removeChannel(chatChannel);if(matchesChannel)await sb.removeChannel(matchesChannel);await sb.auth.signOut();location.reload();};
+$('btnDeco').onclick=async()=>{if(presenceChannel)await sb.removeChannel(presenceChannel);if(chatChannel)await sb.removeChannel(chatChannel);await sb.auth.signOut();location.reload();};
 
 async function verifierAdmin(){const {data,error}=await sb.rpc('llc_is_admin');estAdmin=!error&&data===true;return estAdmin;}
 
-async function demarrer(){const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:prof,error}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();moi=prof?{id:user.id,pseudo:prof.pseudo}:null;if(!moi){$('authMsg').textContent='Profil introuvable. Vérifie la table profiles et sa politique RLS dans Supabase.';return;}await verifierAdmin();$('vueAuth').classList.add('cache');$('vueApp').classList.remove('cache');$('entete').classList.remove('cache');$('monPseudo').textContent='Pseudo : '+moi.pseudo;$('monRole').textContent=estAdmin?'👑 Administrateur du Labo':'Membre du Labo';await chargerMatchs();await chargerChat();chargerTicket();majBoutonNotifications();
-if(chatChannel)sb.removeChannel(chatChannel);chatChannel=sb.channel('chat-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>{chargerChat();const msg=payload.new;if(msg&&msg.user_id!==moi.id)afficherAlerte('💬 Nouveau message de '+(msg.user_id===moi.id?'toi':'un membre'),String(msg.contenu||'').slice(0,150));}).subscribe();
-if(matchesChannel)sb.removeChannel(matchesChannel);matchesChannel=sb.channel('matches-live').on('postgres_changes',{event:'INSERT',schema:'public',table:'matches'},async payload=>{const m=payload.new||{};if(m.created_by===moi.id)return;let auteur='Un membre';if(m.created_by){const {data:p}=await sb.from('profiles').select('pseudo').eq('id',m.created_by).maybeSingle();if(p&&p.pseudo)auteur=p.pseudo;}afficherAlerte('🏟️ Nouveau match ajouté',auteur+' a ajouté '+(m.equipe_domicile||'')+' – '+(m.equipe_exterieur||''));chargerMatchs();}).subscribe();
+// Message quotidien partagé : la sécurité d'écriture est imposée par RLS côté Supabase.
+function dateLocaleSQL(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function afficherMessageJour(row){const zone=$('dailyPublic'),txt=$('dailyPublicText'),date=$('dailyPublicDate');if(!zone||!txt||!date)return;if(row&&row.message){txt.textContent=row.message;date.textContent='Publié le '+new Date(row.message_date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}else{txt.textContent='Aucun message publié pour aujourd’hui.';date.textContent='Le message du jour apparaîtra ici';}}
+async function chargerMessageJour(){const jour=dateLocaleSQL();const {data,error}=await sb.from('llc_daily_messages').select('message,message_date,updated_at').eq('message_date',jour).maybeSingle();if(error){afficherMessageJour(null);if(estAdmin)$('dailyAdminStatus').textContent='Table des messages quotidiens indisponible : '+error.message+' — exécute le SQL fourni.';return;}afficherMessageJour(data);if(estAdmin&&$('dailyMessageInput')&&!$('dailyMessageInput').value)$('dailyMessageInput').value=data?.message||'';}
+async function publierMessageJour(){if(!estAdmin){alert('Cette fonction est réservée à l’administrateur.');return;}const message=$('dailyMessageInput').value.trim();if(!message){$('dailyAdminStatus').textContent='Écris un message avant de publier.';return;}const jour=dateLocaleSQL();$('dailyPublishBtn').disabled=true;$('dailyAdminStatus').textContent='Publication en cours…';const {error}=await sb.from('llc_daily_messages').upsert({message_date:jour,message,updated_by:moi.id,updated_at:new Date().toISOString()},{onConflict:'message_date'});$('dailyPublishBtn').disabled=false;if(error){$('dailyAdminStatus').textContent='Publication impossible : '+error.message;return;}$('dailyAdminStatus').textContent='✨ Ton message est maintenant visible par tous les membres.';$('dailyPublicText').textContent=message;$('dailyPublicDate').textContent='Publié le '+new Date(jour+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});}
+$('dailyPublishBtn').onclick=publierMessageJour;$('dailyRefreshBtn').onclick=chargerMessageJour;
+
+async function demarrer(){const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:prof,error}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();moi=prof?{id:user.id,pseudo:prof.pseudo}:null;if(!moi){$('authMsg').textContent='Profil introuvable. Vérifie la table profiles et sa politique RLS dans Supabase.';return;}await verifierAdmin();$('vueAuth').classList.add('cache');$('vueApp').classList.remove('cache');$('entete').classList.remove('cache');$('monPseudo').textContent='Pseudo : '+moi.pseudo;$('monRole').textContent=estAdmin?'👑 Administrateur du Labo':'Membre du Labo';$('dailyAdmin').classList.toggle('cache',!estAdmin);await chargerMessageJour();await chargerMatchs();await chargerChat();chargerTicket();
+if(chatChannel)sb.removeChannel(chatChannel);chatChannel=sb.channel('chat-live').on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>chargerChat()).subscribe();
+ if(window.dailyChannel)sb.removeChannel(window.dailyChannel);window.dailyChannel=sb.channel('daily-message-live').on('postgres_changes',{event:'*',schema:'public',table:'llc_daily_messages'},()=>chargerMessageJour()).subscribe();
 if(presenceChannel)sb.removeChannel(presenceChannel);presenceChannel=sb.channel('en-ligne',{config:{presence:{key:moi.id}}});presenceChannel.on('presence',{event:'sync'},()=>{enLigne=Object.keys(presenceChannel.presenceState());majMembres();}).subscribe(async s=>{if(s==='SUBSCRIBED')await presenceChannel.track({pseudo:moi.pseudo});});
 }
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('actif'));b.classList.add('actif');['pageMatchs','pageClassement','pageChat','pageMembres','pageProfil'].forEach(p=>$(p).classList.add('cache'));$(b.dataset.page).classList.remove('cache');if(b.dataset.page==='pageClassement'){chargerClassement();chargerTicket();}if(b.dataset.page==='pageProfil')chargerStat();if(b.dataset.page==='pageMembres')majMembres();});
