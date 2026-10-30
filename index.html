@@ -336,6 +336,50 @@ nav button.actif{color:var(--c);text-shadow:0 0 10px var(--c)}nav span{display:b
 </section>
 </main>
 <script>
+/* Sécurité de démarrage : garde-fou indépendant du grand script de l’application. */
+(function(){
+  function afficherDiagnostic(message){
+    const zone=document.getElementById('authMsg');
+    if(zone) zone.textContent=message;
+  }
+  window.addEventListener('error',function(e){
+    const detail=e&&e.message?e.message:'Erreur JavaScript inconnue';
+    afficherDiagnostic('Un élément de l’application n’a pas démarré correctement : '+detail+'. Recharge la page.');
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    const raison=e&&e.reason;
+    const detail=raison&&(raison.message||String(raison))||'Erreur inattendue';
+    afficherDiagnostic('Une opération a échoué : '+detail);
+  });
+  document.addEventListener('click',function(e){
+    const bouton=e.target&&e.target.closest?e.target.closest('#basculer'):null;
+    if(!bouton)return;
+    const action=bouton.onclick;
+    if(typeof action==='function')return; // Le gestionnaire principal fonctionne : ne pas le doubler.
+    const titre=document.getElementById('authTitre');
+    const btnAuth=document.getElementById('btnAuth');
+    const pseudo=document.getElementById('pseudo');
+    const motOublie=document.getElementById('motOublie');
+    if(!titre||!btnAuth||!pseudo||!motOublie)return;
+    const versInscription=(titre.textContent||'').toLowerCase().includes('connexion');
+    titre.textContent=versInscription?'Inscription gratuite':'Connexion';
+    btnAuth.textContent=versInscription?'Je m’inscris':'Je me connecte';
+    pseudo.classList.toggle('cache',!versInscription);
+    motOublie.classList.toggle('cache',versInscription);
+    bouton.textContent=versInscription?'J’ai déjà un compte, me connecter':'Pas de compte ? M’inscrire';
+    const mdp=document.getElementById('mdp');
+    if(mdp)mdp.autocomplete=versInscription?'new-password':'current-password';
+    afficherDiagnostic('Le formulaire a été basculé en mode de secours. Si la connexion ne fonctionne pas, le script principal doit être réparé.');
+  },true);
+  document.addEventListener('click',function(e){
+    const bouton=e.target&&e.target.closest?e.target.closest('#btnAuth'):null;
+    if(bouton&&typeof bouton.onclick!=='function'){
+      afficherDiagnostic('Le module de connexion ne s’est pas chargé. Recharge la page ; si le message revient, envoie une capture à l’assistance.');
+    }
+  },true);
+})();
+</script>
+<script>
 const SUPABASE_URL='https://herjmwgirdrpfawwsfec.supabase.co';
 const SUPABASE_CLE='sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_CLE);
@@ -368,13 +412,10 @@ const tc=document.createElement('canvas');tc.width=512;tc.height=320;const x=tc.
 const sol=new THREE.Mesh(new THREE.PlaneGeometry(24,15),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(tc)}));sol.rotation.x=-Math.PI/2;S.add(sol);const neon=[0x00f0ff,0xff2bd6,0x8a3dff,0xb6ff3b,0xffd23f];
 for(let r=0;r<2;r++)for(let i=0;i<56;i++){const a=i/56*Math.PI*2,h=1.2+r*1.4,b=new THREE.Mesh(new THREE.BoxGeometry(1.5,h,1),new THREE.MeshBasicMaterial({color:neon[Math.floor(Math.random()*5)]}));b.material.color.multiplyScalar(.35+Math.random()*.4);b.position.set(Math.cos(a)*(14+r*1.6),h/2+r*.7,Math.sin(a)*(10+r*1.3));b.lookAt(0,b.position.y,0);S.add(b);}
 const anneaux=[0x00f0ff,0xff2bd6,0xb6ff3b].map((c,i)=>{const m=new THREE.Mesh(new THREE.TorusGeometry(2+i*.8,.05,8,64),new THREE.MeshBasicMaterial({color:c}));m.position.y=3;S.add(m);return m;});const N=250,pp=new Float32Array(N*3);for(let i=0;i<N;i++){pp[i*3]=(Math.random()-.5)*34;pp[i*3+1]=Math.random()*14;pp[i*3+2]=(Math.random()-.5)*24;}const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pp,3));S.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0xff9bf0,size:.12,transparent:true,opacity:.8})));
-// Joueurs 3D articulés + ballon animé + chien mascotte qui court sur la pelouse
-function capsule(c,r,h){const g=new THREE.Group(),m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,12),new THREE.MeshStandardMaterial({color:c,roughness:.48,metalness:.12}));g.add(m);const a=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),m.material),b=a.clone();a.position.y=h/2;b.position.y=-h/2;g.add(a,b);return g;}
-function creerJoueur(c,accent){const g=new THREE.Group(),skin=new THREE.MeshStandardMaterial({color:0xc98762,roughness:.7}),shirt=new THREE.MeshStandardMaterial({color:c,metalness:.15,roughness:.38}),shorts=new THREE.MeshStandardMaterial({color:0x11172d}),shoe=new THREE.MeshStandardMaterial({color:accent,emissive:accent,emissiveIntensity:.18});const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.28,.55,5,10),shirt);torso.position.y=1.35;g.add(torso);const head=new THREE.Mesh(new THREE.SphereGeometry(.2,16,12),skin);head.position.y=2.02;g.add(head);const hair=new THREE.Mesh(new THREE.SphereGeometry(.205,12,8),new THREE.MeshStandardMaterial({color:0x20150f}));hair.scale.set(1,.48,1);hair.position.set(0,2.14,0);g.add(hair);const hips=new THREE.Mesh(new THREE.BoxGeometry(.46,.22,.28),shorts);hips.position.y=.94;g.add(hips);const arms=[],legs=[];for(const side of [-1,1]){const arm=new THREE.Group();arm.position.set(side*.34,1.62,0);arm.add(capsule(0xc98762,.085,.48));arm.children[0].position.y=-.24;g.add(arm);arms.push(arm);const leg=new THREE.Group();leg.position.set(side*.14,.88,0);leg.add(capsule(0x26385f,.12,.56));leg.children[0].position.y=-.29;const foot=new THREE.Mesh(new THREE.BoxGeometry(.16,.1,.3),shoe);foot.position.set(0,-.62,.09);leg.add(foot);g.add(leg);legs.push(leg);}g.userData={arms,legs,head};return g;}
-const joueurs=[creerJoueur(0x00aaff,0x00f0ff),creerJoueur(0xff3b9d,0xff2bd6)];joueurs[0].position.set(-2,.04,1.5);joueurs[1].position.set(2,.04,-1.4);joueurs[1].scale.setScalar(.88);joueurs.forEach((j,i)=>{j.rotation.y=i?Math.PI:0;S.add(j);});
+// Décor 3D épuré : suppression des silhouettes de joueurs et du chien.
+// Le ballon reste animé au centre de l'arène.
 const ballon=new THREE.Group(),ballMat=new THREE.MeshStandardMaterial({color:0xf5f7ff,roughness:.32}),ball=new THREE.Mesh(new THREE.SphereGeometry(.22,20,16),ballMat);ballon.add(ball);const bandes=new THREE.Mesh(new THREE.TorusGeometry(.222,.018,5,24),new THREE.MeshStandardMaterial({color:0x17172b}));bandes.rotation.x=Math.PI/2;ballon.add(bandes);ballon.position.set(-.15,.25,.1);S.add(ballon);
-const chien=new THREE.Group(),fur=new THREE.MeshStandardMaterial({color:0xc78a45,roughness:.8}),dark=new THREE.MeshStandardMaterial({color:0x39251b});const tronc=new THREE.Mesh(new THREE.CapsuleGeometry(.22,.62,4,8),fur);tronc.rotation.z=Math.PI/2;tronc.position.y=.48;chien.add(tronc);const tete=new THREE.Mesh(new THREE.SphereGeometry(.19,12,10),fur);tete.position.set(.43,.62,0);chien.add(tete);const museau=new THREE.Mesh(new THREE.ConeGeometry(.1,.22,10),fur);museau.rotation.z=-Math.PI/2;museau.position.set(.59,.58,0);chien.add(museau);const queue=new THREE.Group();queue.position.set(-.43,.55,0);const qmesh=new THREE.Mesh(new THREE.ConeGeometry(.07,.38,8),fur);qmesh.position.y=.18;qmesh.rotation.z=-.4;queue.add(qmesh);chien.add(queue);const pattes=[];for(const x of [-.25,.25])for(const z of [-.12,.12]){const leg=new THREE.Group();leg.position.set(x,.42,z);leg.add(new THREE.Mesh(new THREE.CylinderGeometry(.045,.055,.35,8),fur));leg.children[0].position.y=-.16;chien.add(leg);pattes.push(leg);}chien.position.set(0,0,3.1);chien.scale.setScalar(.72);S.add(chien);
-(function boucle(){const t=performance.now()/1000;C.position.set(Math.cos(t*.1)*8.5,5+Math.sin(t*.3),Math.sin(t*.1)*6.5);C.lookAt(0,1.8,0);anneaux.forEach((m,i)=>{m.rotation.x=t*(.8+i*.3);m.rotation.y=t*.6;});joueurs.forEach((j,i)=>{const u=t*5+i*1.7;j.position.x=(i?2:-2)+Math.sin(t*.7+i)*.45;j.position.z=(i?-1.4:1.5)+Math.cos(t*.6+i)*.25;j.userData.legs.forEach((l,k)=>{l.rotation.x=Math.sin(u+k*Math.PI)*.72;});j.userData.arms.forEach((a,k)=>{a.rotation.x=Math.sin(u+k*Math.PI+Math.PI)*.48;a.rotation.z=(k?-.12:.12);});j.userData.head.rotation.z=Math.sin(u*.5)*.05;});const kick=Math.max(0,Math.sin(t*2.1));ballon.position.set(-.15+Math.sin(t*2.1)*1.35,.24+Math.pow(kick,5)*1.1,.1+Math.cos(t*1.05)*.55);ballon.rotation.set(t*2,t*3,t*1.4);chien.position.x=Math.sin(t*1.1)*3.2;chien.position.z=3.1+Math.cos(t*.8)*.4;chien.rotation.y=Math.sin(t*1.1)*.65;pattes.forEach((l,k)=>{l.rotation.z=Math.sin(t*10+(k%2)*Math.PI+Math.floor(k/2)*Math.PI)*.65;});queue.rotation.z=Math.sin(t*9)*.25;for(let i=0;i<N;i++){pp[i*3+1]+=.012;if(pp[i*3+1]>14)pp[i*3+1]=0;}pg.attributes.position.needsUpdate=true;R.render(S,C);requestAnimationFrame(boucle);})();})();}catch(e){console.warn('Décor 3D indisponible',e);}
+(function boucle(){const t=performance.now()/1000;C.position.set(Math.cos(t*.1)*8.5,5+Math.sin(t*.3),Math.sin(t*.1)*6.5);C.lookAt(0,1.8,0);anneaux.forEach((m,i)=>{m.rotation.x=t*(.8+i*.3);m.rotation.y=t*.6;});const kick=Math.max(0,Math.sin(t*2.1));ballon.position.set(-.15+Math.sin(t*2.1)*1.35,.24+Math.pow(kick,5)*1.1,.1+Math.cos(t*1.05)*.55);ballon.rotation.set(t*2,t*3,t*1.4);for(let i=0;i<N;i++){pp[i*3+1]+=.012;if(pp[i*3+1]>14)pp[i*3+1]=0;}pg.attributes.position.needsUpdate=true;R.render(S,C);requestAnimationFrame(boucle);})();})();}catch(e){console.warn('Décor 3D indisponible',e);}
 
 // Robots 3D de victoire / défaite
 let R3,S3,C3,raf,act=[];
@@ -466,8 +507,8 @@ $('btnConfidentialite').onclick=()=>$('detailConf').classList.toggle('cache');
 
 (async()=>{const hash=new URLSearchParams(location.hash.slice(1));const query=new URLSearchParams(location.search);const lienRecovery=hash.get('type')==='recovery'||query.get('type')==='recovery'||query.has('code')||hash.has('access_token');const erreurLien=query.get('error_description')||hash.get('error_description');if(erreurLien){$('vueAuth').classList.remove('cache');$('resetView').classList.add('cache');$('authMsg').textContent='Le lien de réinitialisation a expiré ou est invalide. Saisis ton e-mail et demande un nouveau lien.';return;}const {data:{session},error}=await sb.auth.getSession();if(lienRecovery){if(session){afficherEcranReinitialisation();}else{ $('vueAuth').classList.add('cache');$('resetView').classList.remove('cache');$('resetMsg').textContent='Le lien ne donne pas encore accès à la réinitialisation. S’il vient d’être ouvert, attends quelques secondes ; sinon retourne à la connexion et demande un nouveau lien.';$('btnNouveauMdp').disabled=false;}}else if(session){await demarrer();}})();
 
-// L’introduction se joue une fois par session, avec bouton pour la passer.
-(()=>{const intro=document.getElementById('introLabo');if(!intro)return;const fermer=()=>{intro.classList.add('fini');try{sessionStorage.setItem('llc_intro_vue','1')}catch(e){}};const skip=document.getElementById('introSkip');if(skip)skip.addEventListener('click',fermer);let deja=false;try{deja=sessionStorage.getItem('llc_intro_vue')==='1'}catch(e){}if(deja)fermer();else setTimeout(fermer,12000)})();
+// L’introduction se joue à chaque ouverture du fichier, avec bouton pour la passer.
+(()=>{const intro=document.getElementById('introLabo');if(!intro)return;intro.classList.remove('fini');const fermer=()=>intro.classList.add('fini');const skip=document.getElementById('introSkip');if(skip)skip.addEventListener('click',fermer);setTimeout(fermer,12000)})();
 </script>
 </body>
 </html>
