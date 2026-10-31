@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#090b16">
   <meta name="description" content="LE LABO DU CLOS — pronostics sportifs entre amis.">
   <title>LE LABO DU CLOS — Pronos entre amis</title>
+  <meta name="application-name" content="LE LABO DU CLOS">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,3 +58,177 @@
 <body>
 <div id="authView" class="auth-shell">
   <div class="auth-scene">
+    <img class="auth-scene-art" src="labo-scene-1.png" alt="Le Labo du Clos, stade gaming et trophée doré">
+    <section class="auth-overlay" aria-label="Formulaire de connexion et d'inscription">
+      <div class="auth-overlay-tabs">
+        <button class="auth-tab active" id="tabSignup" type="button">Créer un compte</button>
+        <button class="auth-tab" id="tabLogin" type="button">Se connecter</button>
+      </div>
+      <form id="authForm" class="auth-overlay-form">
+        <input id="pseudo" class="auth-input pseudo-input" minlength="3" maxlength="24" autocomplete="nickname" placeholder="Pseudo (min. 3 caractères)" aria-label="Pseudo">
+      <input id="email" class="auth-input email-input" type="email" autocomplete="email" required placeholder="Adresse e-mail" aria-label="Adresse e-mail">
+        <input id="password" class="auth-input password-input" type="password" minlength="6" autocomplete="new-password" required placeholder="Mot de passe (6 caractères min.)" aria-label="Mot de passe">
+        <div id="authMessage" class="auth-message" aria-live="polite"></div>
+        <button class="auth-submit" id="authSubmit" type="submit">🚀 S’inscrire</button>
+        <button class="auth-switch" id="authSwitch" type="button">J’ai déjà un compte, me connecter</button>
+        <button class="auth-forgot" id="forgotBtn" type="button">Mot de passe oublié ?</button>
+      </form>
+    </section>
+  </div>
+</div>
+<div id="appView" class="hidden">
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">🏆</div><div><h1>LE LABO DU CLOS</h1><small>PRONOS ENTRE AMIS</small></div></div>
+      <div style="display:flex;gap:8px;align-items:center"><span class="pill" id="userPill">Connecté</span><button class="btn secondary small" id="logoutBtn">Quitter</button></div>
+    </header>
+    <section class="cinematic-visual" aria-label="Univers 3D du Labo du Clos">
+      <img src="labo-scene-2.png" alt="Univers 3D du Labo du Clos : stade illuminé, trophée doré, football, basket, hockey, tennis et rugby">
+      <div class="cinematic-caption"><span>🏆 LE LABO DU CLOS</span><strong>PRONOSTIQUEZ · GAGNEZ · PARTAGEZ</strong></div>
+    </section>
+    <section class="hero">
+      <div><div class="eyebrow">LA COMPÉTITION COMMENCE ICI</div><h2>À toi de jouer.<br><span class="gold">À toi de gagner.</span></h2><p>Fais tes pronostics, retrouve tes amis au classement et transforme chaque match en défi. Le meilleur pronostiqueur remportera la saison !</p><div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn" id="inviteBtn">✉ Inviter un ami</button><button class="btn secondary" id="goMatches">Voir les matchs</button></div></div>
+      <div class="hero-art">🏆<span>LE TICKET DU GAGNANT</span></div>
+    </section>
+    <div class="grid">
+      <div class="stat"><span>Mes points</span><strong id="myPoints">0</strong></div>
+      <div class="stat"><span>Pronostics</span><strong id="myPredictions">0</strong></div>
+      <div class="stat"><span>Mon rang</span><strong id="myRank">—</strong></div>
+    </div>
+    <div class="layout">
+      <main>
+        <section id="pageMatches">
+          <div class="section-head"><h2>⚡ Matchs à pronostiquer</h2><div class="filters" id="sportFilters">
+            <button class="chip active" data-sport="Tous">Tous</button><button class="chip" data-sport="football">⚽ Football</button><button class="chip" data-sport="basket">🏀 Basket</button><button class="chip" data-sport="hockey">🏒 Hockey</button><button class="chip" data-sport="tennis">🎾 Tennis</button><button class="chip" data-sport="rugby">🏉 Rugby</button>
+          </div></div>
+          <div id="matchesList"><div class="empty">Chargement des matchs…</div></div>
+          <div class="card" id="addMatchCard">
+            <div class="section-head" style="margin:0 0 8px"><h2>＋ Ajouter un match</h2><span class="pill">Espace participant</span></div>
+            <form id="matchForm" class="formgrid">
+              <div class="field"><label>Sport</label><select id="matchSport"><option value="football">Football</option><option value="basket">Basket</option><option value="hockey">Hockey</option><option value="tennis">Tennis</option><option value="rugby">Rugby</option></select></div>
+              <div class="field"><label>Compétition</label><input id="competition" required placeholder="Ex. Ligue 1"></div>
+              <div class="field"><label>Équipe / joueur domicile</label><input id="homeTeam" required placeholder="Équipe A"></div>
+              <div class="field"><label>Équipe / joueur extérieur</label><input id="awayTeam" required placeholder="Équipe B"></div>
+              <div class="field full"><label>Date et heure du match</label><input id="matchDate" type="datetime-local" required></div>
+              <div class="full"><button class="btn" type="submit">Ajouter le match</button></div>
+            </form>
+          </div>
+        </section>
+        <section id="pageRanking" class="hidden">
+          <div class="section-head"><h2>🏅 Classement</h2><div class="tabs"><button class="chip active" data-period="semaine">Semaine</button><button class="chip" data-period="mois">Mois</button><button class="chip" data-period="total">Total</button></div></div>
+          <div class="card" id="rankingList">Chargement du classement…</div>
+        </section>
+        <section id="pageChat" class="hidden">
+          <div class="section-head"><h2>💬 Le chat du Labo</h2><span class="pill">Entre amis</span></div>
+          <div class="card"><div class="chat-list" id="chatList"><div class="empty">Aucun message pour le moment.</div></div><form id="chatForm" style="display:flex;gap:8px;margin-top:14px"><input id="chatInput" maxlength="500" required placeholder="Écris un message…" style="flex:1;min-width:0;background:#0b1120;border:1px solid #303c58;border-radius:11px;padding:12px;color:white"><button class="btn" type="submit">Envoyer</button></form></div>
+        </section>
+        <section id="pageProfile" class="hidden">
+          <div class="section-head"><h2>👤 Mon profil</h2></div>
+          <div class="card"><div style="display:flex;align-items:center;gap:14px"><div class="avatar" id="profileAvatar" style="width:58px;height:58px;font-size:30px">⚽</div><div><strong id="profilePseudo">Mon profil</strong><div class="muted tiny" id="profileEmail"></div></div></div>
+            <form id="profileForm" style="margin-top:18px"><div class="field"><label>Mon pseudo</label><input id="profilePseudoInput" minlength="3" maxlength="24" required></div><div class="field"><label>Mon avatar</label><select id="profileAvatarInput"><option>⚽</option><option>🏀</option><option>🏒</option><option>🎾</option><option>🏉</option><option>🏆</option><option>🦁</option><option>🐺</option><option>👑</option><option>🔥</option></select></div><button class="btn" type="submit">Enregistrer mon profil</button></form>
+          </div>
+          <div class="card" style="margin-top:13px"><h3>Partager le Labo</h3><p class="muted tiny">Invite tes amis à rejoindre ta compétition.</p><button class="btn secondary" id="inviteBtn2">Copier le lien d'invitation</button></div>
+        </section>
+      </main>
+      <aside class="side-card">
+        <div class="card"><div class="eyebrow">TON OBJECTIF</div><h3 style="font:700 17px Cinzel">Le sommet du classement</h3><p class="muted tiny">Chaque bon pronostic te rapproche de la première place. Reste régulier et défie tes amis !</p><div style="font-size:32px;text-align:center;padding:10px">🎟️ 🏆 🎟️</div></div>
+        <div class="card" style="margin-top:13px"><h3 style="margin:0 0 10px">Règles des points</h3><div class="ranking-row"><span>🎯</span><span>Bon résultat</span><strong class="gold">3 pts</strong></div><div class="ranking-row"><span>❌</span><span>Mauvais résultat</span><strong>0 pt</strong></div><p class="tiny muted">Les résultats sont validés à la clôture du match par l'administrateur.</p></div>
+        <div class="card hidden" id="adminPanel" style="margin-top:13px"><h3>🛡️ Administration</h3><p class="tiny muted">Ton compte dispose des droits d'administration.</p><p class="tiny">La clôture et la saisie des scores se font depuis les matchs.</p></div>
+      </aside>
+    </div>
+    <footer>LE LABO DU CLOS · PRONOSTICS ENTRE AMIS · Joue pour le plaisir et respecte les autres.<br><span style="opacity:.55;font-family:cursive">🐇 Mon petit bichon</span></footer>
+  </div>
+  <nav class="nav">
+    <button class="active" data-page="Matches"><b>⚽</b>Matchs</button><button data-page="Ranking"><b>🏅</b>Classement</button><button data-page="Chat"><b>💬</b>Chat</button><button data-page="Profile"><b>👤</b>Profil</button><button id="musicBtn"><b>♫</b>Son OFF</button>
+  </nav>
+</div>
+<div id="resultFx" class="result-fx hidden" aria-live="polite"><div class="result-fx-card"><div id="resultFxIcon" class="result-fx-icon">🏆</div><div id="resultFxTitle" class="result-fx-title">VICTOIRE !</div><div id="resultFxText">Bien joué, champion !</div><button class="btn" id="closeFx" type="button">Continuer</button></div></div>
+<div id="toast" class="toast hidden" role="status"></div>
+<script>
+(() => {
+  "use strict";
+  // Configuration du projet Supabase existant.
+  const SUPABASE_URL = "https://herjmwgirdrpfawwsfec.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let user = null, profile = null, sportFilter = "Tous", period = "semaine", predictions = [], matches = [], musicContext = null, musicOn = false, chatTimer = null, musicTimer = null, musicMaster = null, authMode = "signup", authBusy = false;
+  const $ = id => document.getElementById(id);
+  const safe = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function toast(msg){$("toast").textContent=msg;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),3200)}
+  function playEffect(kind="click"){
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+      const ctx=musicContext||new AC();const now=ctx.currentTime;
+      const notes=kind==="win"?[523.25,659.25,783.99,1046.5]:kind==="lose"?[220,196,164.81]:[440,660];
+      notes.forEach((hz,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==="win"?"triangle":"sine";o.frequency.setValueAtTime(hz,now+i*.11);g.gain.setValueAtTime(.0001,now+i*.11);g.gain.exponentialRampToValueAtTime(kind==="win"?.12:.055,now+i*.11+.025);g.gain.exponentialRampToValueAtTime(.0001,now+i*.11+.22);o.connect(g);g.connect(ctx.destination);o.start(now+i*.11);o.stop(now+i*.11+.24)});
+    }catch(e){}
+  }
+  function showResultFx(win,matchName){
+    $("resultFxIcon").textContent=win?"🏆🎉":"😅🧊";
+    $("resultFxTitle").textContent=win?"PARI GAGNANT !":"PAS CETTE FOIS…";
+    $("resultFxText").textContent=win?`Excellent pronostic sur ${matchName} ! +3 points pour toi.`:`Le match ${matchName} ne t'a pas souri. La revanche arrive !`;
+    $("resultFx").classList.remove("hidden");playEffect(win?"win":"lose");
+    if(win && window.confetti){window.confetti({particleCount:120,spread:80,origin:{y:.62},colors:["#f3c96a","#9b73ff","#ffffff"]})}
+  }
+  $("closeFx").onclick=()=>$("resultFx").classList.add("hidden");
+  function message(el,msg,type=""){el.innerHTML=msg?`<div class="message ${type}">${safe(msg)}</div>`:""}
+  function setAuthMode(mode){authMode=mode;const signup=authMode==="signup";$("tabLogin").classList.toggle("active",!signup);$("tabSignup").classList.toggle("active",signup);$("pseudo").classList.toggle("hidden",!signup);$("pseudo").required=signup;$("authSubmit").textContent=signup?"🚀 S’inscrire":"Me connecter";$("authSwitch").textContent=signup?"J’ai déjà un compte, me connecter":"Pas de compte ? Créer un compte";$("password").autocomplete=signup?"new-password":"current-password";message($("authMessage"),"")}
+  $("tabLogin").addEventListener("click",()=>setAuthMode("login"));$("tabSignup").addEventListener("click",()=>setAuthMode("signup"));
+  $("authSwitch").addEventListener("click",()=>setAuthMode(authMode==="signup"?"login":"signup"));
+  $("authForm").addEventListener("submit",async e=>{e.preventDefault();if(authBusy)return;authBusy=true;const signup=authMode==="signup";const email=$("email").value.trim();const password=$("password").value;const pseudo=$("pseudo").value.trim();const btn=$("authSubmit");btn.disabled=true;btn.textContent=signup?"Création du compte…":"Connexion…";message($("authMessage"),"");
+    try{
+      if(!window.supabase?.createClient)throw new Error("Le service de connexion n’a pas chargé. Vérifie ta connexion Internet puis recharge la page.");
+      if(signup){if(pseudo.length<3)throw new Error("Ton pseudo doit contenir au moins 3 caractères.");if(password.length<6)throw new Error("Le mot de passe doit contenir au moins 6 caractères.");const {data,error}=await db.auth.signUp({email,password,options:{data:{pseudo}}});if(error)throw error;
+        if(!data.session){message($("authMessage"),"Compte créé ! Vérifie ta boîte e-mail pour confirmer ton adresse avant de te connecter.","ok");}
+       else{const {error:pe}=await db.from("profiles").upsert({id:data.user.id,pseudo},{onConflict:"id"});if(pe)throw pe;user=data.user;await startApp();}
+      }else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;user=data.user;await startApp();}
+    }catch(err){message($("authMessage"),err.message||"Une erreur est survenue.","error")}finally{authBusy=false;btn.disabled=false;btn.textContent=authMode==="signup"?"🚀 S’inscrire":"Me connecter";}
+  });
+  $("forgotBtn").onclick=async()=>{const email=$("email").value.trim();if(!email){message($("authMessage"),"Entre d'abord ton adresse e-mail.","error");return}const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});message($("authMessage"),error?error.message:"Si cette adresse correspond à un compte, un e-mail de réinitialisation va être envoyé.",error?"error":"ok")};
+  async function startApp(){ $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("userPill").textContent=user.email||"Connecté";await loadProfile();await refreshAll();if(chatTimer)clearInterval(chatTimer);chatTimer=setInterval(loadChat,7000);}
+  async function loadProfile(){let {data,error}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();if(error)console.warn(error);if(!data){const {data:d}=await db.from("profiles").insert({id:user.id,pseudo:user.user_metadata?.pseudo||user.email.split("@")[0]}).select().single();data=d}profile=data||{pseudo:user.email.split("@")[0],avatar:"⚽"};$("profilePseudo").textContent=profile.pseudo||"Joueur";$("profilePseudoInput").value=profile.pseudo||"";$("profileAvatarInput").value=profile.avatar||"⚽";$("profileAvatar").textContent=profile.avatar||"⚽";$("profileEmail").textContent=user.email||"";$("adminPanel").classList.toggle("hidden",profile.role!=="admin");}
+  async function refreshAll(){await Promise.all([loadMatches(),loadPredictions(),loadRanking(),loadChat()]);updateStats()}
+  async function loadMatches(){const {data,error}=await db.from("matches").select("*").order("date_match",{ascending:true});if(error){$("matchesList").innerHTML=`<div class="empty">Impossible de charger les matchs : ${safe(error.message)}</div>`;return}matches=data||[];renderMatches()}
+  async function loadPredictions(){const {data,error}=await db.from("predictions").select("*").eq("user_id",user.id);if(error){console.warn(error);predictions=[]}else predictions=data||[]}
+  function sportEmoji(s){return ({football:"⚽",basket:"🏀",hockey:"🏒",tennis:"🎾",rugby:"🏉"})[s]||"🏟️"}
+  function renderMatches(){
+    matches.forEach(m=>{if(!m.termine)return;const p=predictions.find(x=>x.match_id===m.id);if(!p)return;const key=`lbc-result-${user.id}-${m.id}`;if(localStorage.getItem(key))return;localStorage.setItem(key,"1");const won=Number(p.points||0)>0;setTimeout(()=>showResultFx(won,`${m.equipe_domicile} – ${m.equipe_exterieur}`),500)});
+    const list=matches.filter(m=>sportFilter==="Tous"||m.sport===sportFilter);if(!list.length){$("matchesList").innerHTML='<div class="empty">Aucun match pour ce filtre. Tu peux en ajouter un juste en dessous.</div>';return}
+    $("matchesList").innerHTML=list.map(m=>{const p=predictions.find(x=>x.match_id===m.id);const closed=m.termine||new Date(m.date_match)<new Date();const d=new Date(m.date_match);const dateLabel=isNaN(d)?m.date_match:d.toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});const result=m.termine?`Score final : ${m.score_domicile??"—"} – ${m.score_exterieur??"—"}`:closed?"Match commencé / en attente du score":"À pronostiquer";return `<article class="match"><div class="match-top"><span>${sportEmoji(m.sport)} ${safe((m.sport||"").toUpperCase())} · ${safe(m.competition||"Match")}</span><span>${safe(dateLabel)}</span></div><div class="teams"><div class="team">${safe(m.equipe_domicile)}</div><div class="versus">VS</div><div class="team">${safe(m.equipe_exterieur)}</div></div><div class="predictions">${["1","N","2"].map((v,i)=>`<button class="pick ${p?.choix===v?"selected":""}" data-match="${safe(m.id)}" data-pick="${v}" ${closed?"disabled":""}>${["1 · DOM.","N · NUL","2 · EXT."][i]}</button>`).join("")}</div><div class="match-bottom"><span>${safe(result)} ${m.termine&&p?`· ${p.points||0} point(s)`:""}</span><span>${p?`Ton choix : ${safe(p.choix)}`:closed?"Pronostics fermés":"Fais ton choix"}</span></div>${profile?.role==="admin"?`<form class="scoreForm" data-id="${safe(m.id)}" style="display:flex;gap:6px;margin-top:12px;align-items:center"><input aria-label="Score domicile" type="number" min="0" placeholder="Dom." value="${m.score_domicile??""}" style="width:65px;background:#0b1120;color:white;border:1px solid #303c58;border-radius:8px;padding:8px"><span>–</span><input aria-label="Score extérieur" type="number" min="0" placeholder="Ext." value="${m.score_exterieur??""}" style="width:65px;background:#0b1120;color:white;border:1px solid #303c58;border-radius:8px;padding:8px"><button class="btn small" type="submit">Clôturer</button></form>`:""}</article>`}).join("");
+  }
+  $("sportFilters").addEventListener("click",e=>{const b=e.target.closest("[data-sport]");if(!b)return;sportFilter=b.dataset.sport;document.querySelectorAll("[data-sport]").forEach(x=>x.classList.toggle("active",x===b));renderMatches()});
+  $("matchesList").addEventListener("click",async e=>{const b=e.target.closest("[data-pick]");if(!b)return;const {match,pick}=b.dataset;const {error}=await db.from("predictions").upsert({user_id:user.id,match_id:match,choix:pick},{onConflict:"user_id,match_id"});if(error){toast("Erreur : "+error.message);return}playEffect("click");toast("Pronostic enregistré !");await loadPredictions();renderMatches();updateStats()});
+  $("matchesList").addEventListener("submit",async e=>{if(!e.target.matches(".scoreForm"))return;e.preventDefault();const f=e.target;const id=f.dataset.id;const nums=f.querySelectorAll("input");const a=Number(nums[0].value),b=Number(nums[1].value);if(nums[0].value===""||nums[1].value===""){toast("Saisis les deux scores.");return}const {error}=await db.rpc("cloturer_match",{p_match_id:id,p_score_domicile:a,p_score_exterieur:b});if(error){toast("Clôture impossible : "+error.message);return}toast("Match clôturé et points calculés.");await refreshAll()});
+  $("matchForm").addEventListener("submit",async e=>{e.preventDefault();const payload={sport:$("matchSport").value,competition:$("competition").value.trim(),equipe_domicile:$("homeTeam").value.trim(),equipe_exterieur:$("awayTeam").value.trim(),date_match:new Date($("matchDate").value).toISOString()};const {error}=await db.from("matches").insert(payload);if(error){toast("Ajout impossible : "+error.message);return}e.target.reset();toast("Match ajouté !");await loadMatches()});
+  function updateStats(){const pts=predictions.reduce((n,p)=>n+Number(p.points||0),0);$("myPoints").textContent=pts;$("myPredictions").textContent=predictions.length}
+  function cutoff(){const now=new Date();if(period==="total")return "2000-01-01T00:00:00.000Z";if(period==="mois")return new Date(now.getFullYear(),now.getMonth(),1).toISOString();const day=(now.getDay()+6)%7;return new Date(now.getFullYear(),now.getMonth(),now.getDate()-day).toISOString()}
+  async function loadRanking(){const {data,error}=await db.from("predictions").select("user_id,points,created_at,profiles(pseudo,avatar)").gte("created_at",cutoff());if(error){$("rankingList").textContent="Classement indisponible : "+error.message;return}const map={};(data||[]).forEach(p=>{const id=p.user_id;map[id]??={id,pseudo:p.profiles?.pseudo||"Joueur",avatar:p.profiles?.avatar||"⚽",points:0,count:0};map[id].points+=Number(p.points||0);map[id].count++});const rows=Object.values(map).sort((a,b)=>b.points-a.points);$("myRank").textContent=rows.findIndex(r=>r.id===user.id)>=0?"#"+(rows.findIndex(r=>r.id===user.id)+1):"—";$("rankingList").innerHTML=rows.length?rows.map((r,i)=>`<div class="ranking-row"><div class="rank">${i+1}</div><div style="display:flex;align-items:center;gap:9px"><span class="avatar">${safe(r.avatar)}</span><div><strong>${safe(r.pseudo)}${r.id===user.id?" (moi)":""}</strong><div class="tiny muted">${r.count} pronostic(s)</div></div></div><strong class="gold">${r.points} pts</strong></div>`).join(""):'<div class="empty">Le classement apparaîtra dès les premiers points.</div>'}
+  document.querySelectorAll("[data-period]").forEach(b=>b.addEventListener("click",()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(x=>x.classList.toggle("active",x===b));loadRanking()}));
+  async function loadChat(){const {data,error}=await db.from("chat_messages").select("id,user_id,message,created_at,profiles(pseudo,avatar)").order("created_at",{ascending:true}).limit(100);if(error){$("chatList").innerHTML=`<div class="empty">Chat indisponible : ${safe(error.message)}</div>`;return}const list=data||[];$("chatList").innerHTML=list.length?list.map(m=>`<div class="chat-msg ${m.user_id===user.id?"mine":""}"><small>${safe(m.profiles?.pseudo||"Joueur")} · ${new Date(m.created_at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</small>${safe(m.message)}</div>`).join(""):'<div class="empty">Lance la conversation !</div>';$("chatList").scrollTop=$("chatList").scrollHeight}
+  $("chatForm").addEventListener("submit",async e=>{e.preventDefault();const input=$("chatInput"),messageText=input.value.trim();if(!messageText)return;const {error}=await db.from("chat_messages").insert({user_id:user.id,message:messageText});if(error){toast("Message non envoyé : "+error.message);return}input.value="";await loadChat()});
+  $("profileForm").addEventListener("submit",async e=>{e.preventDefault();const pseudo=$("profilePseudoInput").value.trim(),avatar=$("profileAvatarInput").value;if(pseudo.length<3){toast("Le pseudo doit contenir 3 caractères minimum.");return}const {error}=await db.from("profiles").update({pseudo,avatar}).eq("id",user.id);if(error){toast("Profil non modifié : "+error.message);return}await loadProfile();toast("Profil enregistré.")});
+  async function invite(){const link=location.href;try{if(navigator.share)await navigator.share({title:"LE LABO DU CLOS",text:"Rejoins-nous pour les pronostics !",url:link});else{await navigator.clipboard.writeText(link);toast("Lien copié !")}}catch(e){if(e.name!=="AbortError")toast("Partage non disponible sur cet appareil.")}}
+  $("inviteBtn").onclick=invite;$("inviteBtn2").onclick=invite;$("goMatches").onclick=()=>showPage("Matches");
+  function showPage(page){["Matches","Ranking","Chat","Profile"].forEach(p=>$("page"+p).classList.toggle("hidden",p!==page));document.querySelectorAll(".nav [data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));if(page==="Ranking")loadRanking();if(page==="Chat")loadChat()}
+  document.querySelectorAll(".nav [data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+  $("logoutBtn").onclick=async()=>{if(chatTimer)clearInterval(chatTimer);await db.auth.signOut();user=null;profile=null;$("appView").classList.add("hidden");$("authView").classList.remove("hidden");setAuthMode("login")};
+  function toggleMusic(){try{
+    if(!musicOn){
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC){toast("Audio non pris en charge.");return}
+      musicContext=new AC();musicMaster=musicContext.createGain();musicMaster.gain.value=.018;musicMaster.connect(musicContext.destination);
+      const progression=[[110,164.81,220],[98,146.83,196],[130.81,196,261.63],[87.31,130.81,174.61]];let chord=0;
+      const playPad=()=>{if(!musicContext||musicContext.state==="closed")return;const now=musicContext.currentTime;progression[chord%progression.length].forEach((hz,i)=>{const osc=musicContext.createOscillator(),gain=musicContext.createGain();osc.type="sine";osc.frequency.value=hz;gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime([.48,.25,.16][i],now+.7);gain.gain.setValueAtTime([.48,.25,.16][i],now+2.1);gain.gain.exponentialRampToValueAtTime(.0001,now+2.9);osc.connect(gain);gain.connect(musicMaster);osc.start(now);osc.stop(now+3)});chord++};
+      playPad();musicTimer=setInterval(playPad,2900);musicOn=true;$("musicBtn").innerHTML="<b>♫</b>Son ON";toast("Ambiance originale activée. Appuie à nouveau pour couper.");
+    }else{
+      if(musicTimer)clearInterval(musicTimer);musicTimer=null;musicContext?.close();musicContext=null;musicMaster=null;musicOn=false;$("musicBtn").innerHTML="<b>♫</b>Son OFF";
+    }
+  }catch(e){toast("Impossible d'activer le son.")}}
+  $("musicBtn").onclick=toggleMusic;
+  setAuthMode("signup");
+  db.auth.getSession().then(async({data})=>{if(data.session){user=data.session.user;await startApp()}});
+  db.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_IN"&&session?.user&&!user){user=session.user;await startApp()}});
+  // Version autonome : aucune image ni fichier externe à ajouter sur GitHub.
+})();
+</script>
+</body>
+</html>          
