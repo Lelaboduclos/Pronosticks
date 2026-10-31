@@ -1,234 +1,187 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#090b16">
-  <meta name="description" content="LE LABO DU CLOS — pronostics sportifs entre amis.">
-  <title>LE LABO DU CLOS — Pronos entre amis</title>
-  <meta name="application-name" content="LE LABO DU CLOS">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <style>
-    :root{--bg:#080a13;--panel:#111626;--panel2:#171e31;--line:#283149;--gold:#f3c96a;--gold2:#a97724;--purple:#9b73ff;--pink:#ff5d9e;--green:#48d6a0;--red:#ff6877;--muted:#9ca7bd;--white:#f6f7fb;--shadow:0 18px 55px #0008}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#292044 0,#101426 37%,var(--bg) 75%);color:var(--white);font-family:Inter,system-ui,sans-serif;min-height:100vh}
-    button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}.muted{color:var(--muted)}.gold{color:var(--gold)}.tiny{font-size:.78rem}.wrap{width:min(1120px,100% - 28px);margin:auto}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:12px}.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:48px;height:48px;border-radius:15px;background:linear-gradient(145deg,#ffe9a4,#b87b25 60%,#704516);display:grid;place-items:center;box-shadow:0 7px 24px #d39b3c55;color:#17100a;font-size:25px;position:relative}.brand-mark:after{content:"GAGNANT";position:absolute;bottom:4px;font-size:6px;font-weight:900;letter-spacing:1px}.brand h1{font:800 17px Cinzel,serif;letter-spacing:1.3px;margin:0}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:2px;margin-top:3px}
-    .pill{border:1px solid var(--line);background:#ffffff08;color:var(--muted);border-radius:99px;padding:8px 12px;font-size:12px}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:800;color:#17120a;background:linear-gradient(135deg,#ffe6a0,#d49a38);box-shadow:0 8px 22px #d49a3827}.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn.secondary{background:#252d45;color:var(--white);box-shadow:none;border:1px solid var(--line)}.btn.purple{background:linear-gradient(135deg,#b79bff,#7951db);color:white}.btn.danger{background:#512936;color:#ffdce1;border:1px solid #874150;box-shadow:none}.btn.small{padding:8px 11px;font-size:12px}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-    .cinematic-visual{position:relative;overflow:hidden;border:1px solid #8b6bba;border-radius:24px;margin:4px 0 18px;box-shadow:0 18px 50px #0009;isolation:isolate;background:#111}
-    .cinematic-visual img{display:block;width:100%;aspect-ratio:16/9;max-height:560px;object-fit:cover;object-position:center 48%;animation:stadiumDrift 22s ease-in-out infinite alternate}@keyframes stadiumDrift{from{transform:scale(1)}to{transform:scale(1.045)}}
-    .cinematic-visual:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#080a13dd);pointer-events:none}
-    .cinematic-caption{position:absolute;z-index:1;left:20px;right:20px;bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font:700 clamp(11px,2vw,17px) Cinzel,serif;text-shadow:0 2px 8px #000}
-    .cinematic-caption span{color:#ffe19a}.cinematic-caption strong{color:#fff;letter-spacing:1px}
-    .hero{position:relative;overflow:hidden;border:1px solid #d6a74a55;border-radius:26px;padding:30px;background:linear-gradient(115deg,#171b2e 0%,#231b36 55%,#171725 100%);box-shadow:var(--shadow);display:grid;grid-template-columns:1.25fr .75fr;gap:20px;align-items:center}.hero:before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;right:-100px;top:-170px;background:radial-gradient(circle,#f4c96a25,transparent 68%)}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:3px;font-weight:800}.hero h2{font:800 clamp(27px,5vw,48px) Cinzel,serif;line-height:1.12;margin:12px 0}.hero p{color:#c2c8d8;line-height:1.65;max-width:620px}.hero-art{font-size:clamp(85px,14vw,150px);text-align:center;filter:drop-shadow(0 14px 18px #d69a3855);position:relative}.hero-art span{display:block;font:800 10px Inter;letter-spacing:3px;color:var(--gold);margin-top:-8px}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}.stat,.card{background:linear-gradient(145deg,#151c2d,#101625);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 8px 25px #0002}.stat strong{display:block;font-size:26px;margin-top:7px}.stat span{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-    .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 0 14px}.section-head h2{font:700 21px Cinzel,serif;margin:0}.filters,.tabs{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#111827;color:var(--muted);border-radius:99px;padding:8px 12px;font-size:12px}.chip.active{background:#3b2c1a;color:var(--gold);border-color:#9d7335}
-    .match{background:linear-gradient(145deg,#151d30,#111626);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:12px}.match-top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:11px}.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:18px 0;text-align:center}.team{font-weight:800;font-size:15px}.versus{color:var(--gold);font:700 13px Cinzel}.predictions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pick{background:#202941;border:1px solid #34415e;color:#e8ebf4;border-radius:11px;padding:12px 8px;font-weight:800}.pick.selected{border-color:var(--gold);background:#4a3820;color:#ffdc8b}.pick:disabled{opacity:.55}.match-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;font-size:12px;color:var(--muted)}
-    .field{display:grid;gap:7px;margin:11px 0}.field label{font-size:12px;color:#c5cce0;font-weight:700}.field input,.field select,.field textarea{width:100%;background:#0b1120;border:1px solid #303c58;border-radius:11px;padding:12px;color:white;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px #9b73ff20}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:0 12px}.formgrid .full{grid-column:1/-1}
-    .auth-shell{min-height:100vh;display:grid;place-items:center;padding:0;background:#070916;overflow:hidden}
-    .auth-scene{position:relative;width:min(100vw,1648px);aspect-ratio:1648/928;overflow:hidden;box-shadow:0 0 70px #6b2cff55}
-    .auth-scene-art{display:block;width:100%;height:100%;object-fit:cover}
-    .auth-overlay{position:absolute;left:69.2%;top:13.8%;width:27%;height:58%;color:white}
-    .auth-overlay-tabs{position:absolute;left:5%;right:5%;top:17%;height:13%;display:grid;grid-template-columns:1fr 1fr;gap:3%;}
-    .auth-tab{border:1px solid #8f61ff;background:#080b1deF;color:#fff;border-radius:12px;font-size:clamp(8px,1.05vw,16px);font-weight:800;text-shadow:0 1px 4px #000;}
-    .auth-tab.active{background:linear-gradient(135deg,#9b00ff,#5900c8);box-shadow:0 0 18px #b000ff99}
-    .auth-overlay-form{position:absolute;inset:0}
-    .auth-input{position:absolute;left:7%;width:86%;height:9.5%;border:1px solid #68739b;background:#11172beF;color:white;border-radius:10px;padding:0 4%;font-size:clamp(8px,1.02vw,15px);outline:none;box-shadow:inset 0 1px 8px #0008}
-    .auth-input::placeholder{color:#c0c9e6;opacity:1}.auth-input:focus{border-color:#c18aff;box-shadow:0 0 0 2px #a33dff88}
-    .pseudo-input{top:30%}.email-input{top:41%}.password-input{top:52%}
-    .auth-submit{position:absolute;left:6%;top:64%;width:88%;height:10%;border:1px solid #ffe08a;border-radius:10px;background:linear-gradient(180deg,#ffdf27,#ff9d00);color:#211300;font-weight:1000;font-size:clamp(11px,1.25vw,18px);box-shadow:0 0 20px #ffbd27aa}
-    .auth-switch{position:absolute;left:7%;top:79%;width:86%;height:9%;border:1px solid #8d67ba;border-radius:10px;background:#17152ceF;color:white;font-weight:800;font-size:clamp(8px,.95vw,14px)}
-    .auth-forgot{position:absolute;left:15%;top:90%;width:70%;border:0;background:transparent;color:white;text-decoration:underline;font-size:clamp(8px,.85vw,13px);font-weight:700}
-    .auth-message{position:absolute;left:6%;right:6%;top:74%;font-size:clamp(8px,.8vw,12px);text-align:center;color:#fff;background:#21172add;border-radius:7px;z-index:2;pointer-events:none}
-    .auth-message:empty{display:none}.auth-message.error{background:#7c203dcc}.auth-message.ok{background:#155c42dd}
-    @media(max-width:650px){.auth-shell{padding:0;min-height:100svh;align-items:start}.auth-scene{width:100vw;aspect-ratio:1648/928;margin-top:0}.auth-overlay{left:69.2%;top:13.8%;width:27%;height:58%}.auth-tab,.auth-input,.auth-switch,.auth-forgot{font-size:clamp(6px,1.65vw,10px)}.auth-submit{font-size:clamp(8px,2vw,12px)}.auth-input{padding:0 2%}}
-    @media(max-width:390px){.auth-shell{overflow-x:hidden}.auth-scene{width:100vw}.auth-input::placeholder{font-size:6px}.auth-tab{font-size:6px}.auth-switch{font-size:6px}}
-
-    .layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}.side-card{position:sticky;top:12px}.nav{position:sticky;bottom:0;z-index:5;background:#0b0f1deF;backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:9px max(12px,calc((100% - 1120px)/2));display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:25px}.nav button{background:transparent;border:0;color:#9da8be;padding:9px 4px;border-radius:12px;font-size:11px;font-weight:700}.nav button.active{background:#2d2542;color:var(--gold)}.nav b{display:block;font-size:19px;margin-bottom:4px}
-    .ranking-row{display:grid;grid-template-columns:35px 1fr auto;gap:10px;align-items:center;padding:12px;border-bottom:1px solid #293149}.rank{width:30px;height:30px;border-radius:10px;background:#273149;display:grid;place-items:center;font-weight:800;color:var(--gold)}.avatar{width:38px;height:38px;border-radius:50%;background:#30274b;display:grid;place-items:center;font-size:21px;border:1px solid #6853a0}.chat-list{display:grid;gap:10px;max-height:420px;overflow:auto}.chat-msg{background:#202940;padding:11px 13px;border-radius:13px;max-width:90%}.chat-msg.mine{margin-left:auto;background:#392b55}.chat-msg small{display:block;color:#aab4ca;font-size:10px;margin-bottom:4px}.empty{text-align:center;padding:30px;color:var(--muted);border:1px dashed #34405a;border-radius:16px}.toast{position:fixed;bottom:85px;left:50%;transform:translateX(-50%);background:#202940;border:1px solid #4a5878;padding:12px 17px;border-radius:12px;z-index:20;box-shadow:var(--shadow);max-width:90%;font-size:13px}
-    footer{text-align:center;color:#65718a;font-size:10px;padding:20px 0 35px}
-    @media(max-width:760px){.cinematic-visual img{aspect-ratio:4/3;max-height:390px}.cinematic-caption{left:12px;right:12px;bottom:10px;flex-direction:column;align-items:flex-start;gap:3px}.hero{grid-template-columns:1fr;padding:23px}.hero-art{display:none}.layout{grid-template-columns:1fr}.side-card{position:static}.grid{grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:12px}.stat strong{font-size:21px}.stat span{font-size:9px}.section-head{align-items:flex-start;flex-direction:column}.topbar{padding-top:12px}.brand h1{font-size:14px}}
-    @media(max-width:420px){.formgrid{grid-template-columns:1fr}.formgrid .full{grid-column:auto}.grid{grid-template-columns:1fr 1fr}.grid .stat:last-child{grid-column:1/-1}.match{padding:13px}.team{font-size:13px}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Labo du Clos</title>
+<meta name="theme-color" content="#0b0420">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0b0420;color:#fff;min-height:100vh;overflow-x:hidden}
+#fond{position:fixed;inset:0;z-index:0}
+.page{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:20px}
+h1{text-align:center;font-size:2.2rem;margin:20px 0 4px;background:linear-gradient(90deg,#ffd700,#fff3a0,#ffd700);-webkit-background-clip:text;color:transparent;text-shadow:0 0 30px #ffd70088}
+.sous{text-align:center;color:#c9b6ff;margin-bottom:20px}
+.carte{background:#1a0b3dcc;border:1px solid #ffd70066;border-radius:18px;padding:20px;margin:14px 0;backdrop-filter:blur(6px);box-shadow:0 0 25px #8a2be244}
+.carte.tremble{animation:tremble .4s}
+@keyframes tremble{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+input{width:100%;padding:14px;margin:6px 0;border-radius:12px;border:1px solid #8a2be2;background:#0b0420;color:#fff;font-size:1rem}
+button{width:100%;padding:14px;margin:8px 0;border:0;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .1s}
+button:active{transform:scale(.96)}
+.vert{background:#00ff9d;color:#032}
+.dore{background:linear-gradient(90deg,#ffd700,#ffb700);color:#321}
+.lien{background:none;color:#c9b6ff;font-weight:400;text-decoration:underline;font-size:.9rem}
+.erreur{color:#ff5470;text-align:center;min-height:1.2em;margin-top:6px}
+.match{display:flex;flex-direction:column;gap:8px}
+.match .quand{color:#ffd700;font-size:.85rem}
+.choix{display:flex;gap:8px}
+.choix button{margin:0;background:#2a1366;color:#fff;border:1px solid #8a2be2}
+.choix button.actif{background:#ffd700;color:#321}
+.petit{font-size:.7rem;color:#8d7bbf;text-align:center;margin-top:30px}
+.lapin{opacity:.35;text-align:center;margin-top:24px;font-size:.65rem}
+.lapin svg{width:26px;height:26px;display:block;margin:0 auto 2px}
+.musique{position:fixed;top:12px;right:12px;z-index:5;width:46px;height:46px;border-radius:50%;padding:0;background:#ffd700;color:#321}
+.pastille{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.on{background:#00ff9d}.off{background:#666}
+</style>
 </head>
 <body>
-<div id="authView" class="auth-shell">
-  <div class="auth-scene">
-    <img class="auth-scene-art" src="labo-scene-1.png" alt="Le Labo du Clos, stade gaming et trophée doré">
-    <section class="auth-overlay" aria-label="Formulaire de connexion et d'inscription">
-      <div class="auth-overlay-tabs">
-        <button class="auth-tab active" id="tabSignup" type="button">Créer un compte</button>
-        <button class="auth-tab" id="tabLogin" type="button">Se connecter</button>
-      </div>
-      <form id="authForm" class="auth-overlay-form">
-        <input id="pseudo" class="auth-input pseudo-input" minlength="3" maxlength="24" autocomplete="nickname" placeholder="Pseudo (min. 3 caractères)" aria-label="Pseudo">
-      <input id="email" class="auth-input email-input" type="email" autocomplete="email" required placeholder="Adresse e-mail" aria-label="Adresse e-mail">
-        <input id="password" class="auth-input password-input" type="password" minlength="6" autocomplete="new-password" required placeholder="Mot de passe (6 caractères min.)" aria-label="Mot de passe">
-        <div id="authMessage" class="auth-message" aria-live="polite"></div>
-        <button class="auth-submit" id="authSubmit" type="submit">🚀 S’inscrire</button>
-        <button class="auth-switch" id="authSwitch" type="button">J’ai déjà un compte, me connecter</button>
-        <button class="auth-forgot" id="forgotBtn" type="button">Mot de passe oublié ?</button>
-      </form>
-    </section>
+<canvas id="fond"></canvas>
+<button class="musique" id="btnMusique" title="Musique">&#9835;</button>
+<div class="page">
+<h1>Le Labo du Clos</h1>
+<p class="sous">Pronostique, gagne, deviens Ticket d'Or</p>
+
+<div id="vueAccueil">
+  <div class="carte" id="carteLogin">
+    <input id="email" type="email" placeholder="Adresse e-mail">
+    <input id="mdp" type="password" placeholder="Mot de passe">
+    <div class="erreur" id="erreur"></div>
+    <button class="vert" id="btnConnexion">Se connecter</button>
+    <button class="dore" id="btnInscription">Créer mon compte</button>
+    <button class="lien" id="btnOubli">Mot de passe oublié</button>
   </div>
 </div>
-<div id="appView" class="hidden">
-  <div class="wrap">
-    <header class="topbar">
-      <div class="brand"><div class="brand-mark">🏆</div><div><h1>LE LABO DU CLOS</h1><small>PRONOS ENTRE AMIS</small></div></div>
-      <div style="display:flex;gap:8px;align-items:center"><span class="pill" id="userPill">Connecté</span><button class="btn secondary small" id="logoutBtn">Quitter</button></div>
-    </header>
-    <section class="cinematic-visual" aria-label="Univers 3D du Labo du Clos">
-      <img src="labo-scene-2.png" alt="Univers 3D du Labo du Clos : stade illuminé, trophée doré, football, basket, hockey, tennis et rugby">
-      <div class="cinematic-caption"><span>🏆 LE LABO DU CLOS</span><strong>PRONOSTIQUEZ · GAGNEZ · PARTAGEZ</strong></div>
-    </section>
-    <section class="hero">
-      <div><div class="eyebrow">LA COMPÉTITION COMMENCE ICI</div><h2>À toi de jouer.<br><span class="gold">À toi de gagner.</span></h2><p>Fais tes pronostics, retrouve tes amis au classement et transforme chaque match en défi. Le meilleur pronostiqueur remportera la saison !</p><div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn" id="inviteBtn">✉ Inviter un ami</button><button class="btn secondary" id="goMatches">Voir les matchs</button></div></div>
-      <div class="hero-art">🏆<span>LE TICKET DU GAGNANT</span></div>
-    </section>
-    <div class="grid">
-      <div class="stat"><span>Mes points</span><strong id="myPoints">0</strong></div>
-      <div class="stat"><span>Pronostics</span><strong id="myPredictions">0</strong></div>
-      <div class="stat"><span>Mon rang</span><strong id="myRank">—</strong></div>
-    </div>
-    <div class="layout">
-      <main>
-        <section id="pageMatches">
-          <div class="section-head"><h2>⚡ Matchs à pronostiquer</h2><div class="filters" id="sportFilters">
-            <button class="chip active" data-sport="Tous">Tous</button><button class="chip" data-sport="football">⚽ Football</button><button class="chip" data-sport="basket">🏀 Basket</button><button class="chip" data-sport="hockey">🏒 Hockey</button><button class="chip" data-sport="tennis">🎾 Tennis</button><button class="chip" data-sport="rugby">🏉 Rugby</button>
-          </div></div>
-          <div id="matchesList"><div class="empty">Chargement des matchs…</div></div>
-          <div class="card" id="addMatchCard">
-            <div class="section-head" style="margin:0 0 8px"><h2>＋ Ajouter un match</h2><span class="pill">Espace participant</span></div>
-            <form id="matchForm" class="formgrid">
-              <div class="field"><label>Sport</label><select id="matchSport"><option value="football">Football</option><option value="basket">Basket</option><option value="hockey">Hockey</option><option value="tennis">Tennis</option><option value="rugby">Rugby</option></select></div>
-              <div class="field"><label>Compétition</label><input id="competition" required placeholder="Ex. Ligue 1"></div>
-              <div class="field"><label>Équipe / joueur domicile</label><input id="homeTeam" required placeholder="Équipe A"></div>
-              <div class="field"><label>Équipe / joueur extérieur</label><input id="awayTeam" required placeholder="Équipe B"></div>
-              <div class="field full"><label>Date et heure du match</label><input id="matchDate" type="datetime-local" required></div>
-              <div class="full"><button class="btn" type="submit">Ajouter le match</button></div>
-            </form>
-          </div>
-        </section>
-        <section id="pageRanking" class="hidden">
-          <div class="section-head"><h2>🏅 Classement</h2><div class="tabs"><button class="chip active" data-period="semaine">Semaine</button><button class="chip" data-period="mois">Mois</button><button class="chip" data-period="total">Total</button></div></div>
-          <div class="card" id="rankingList">Chargement du classement…</div>
-        </section>
-        <section id="pageChat" class="hidden">
-          <div class="section-head"><h2>💬 Le chat du Labo</h2><span class="pill">Entre amis</span></div>
-          <div class="card"><div class="chat-list" id="chatList"><div class="empty">Aucun message pour le moment.</div></div><form id="chatForm" style="display:flex;gap:8px;margin-top:14px"><input id="chatInput" maxlength="500" required placeholder="Écris un message…" style="flex:1;min-width:0;background:#0b1120;border:1px solid #303c58;border-radius:11px;padding:12px;color:white"><button class="btn" type="submit">Envoyer</button></form></div>
-        </section>
-        <section id="pageProfile" class="hidden">
-          <div class="section-head"><h2>👤 Mon profil</h2></div>
-          <div class="card"><div style="display:flex;align-items:center;gap:14px"><div class="avatar" id="profileAvatar" style="width:58px;height:58px;font-size:30px">⚽</div><div><strong id="profilePseudo">Mon profil</strong><div class="muted tiny" id="profileEmail"></div></div></div>
-            <form id="profileForm" style="margin-top:18px"><div class="field"><label>Mon pseudo</label><input id="profilePseudoInput" minlength="3" maxlength="24" required></div><div class="field"><label>Mon avatar</label><select id="profileAvatarInput"><option>⚽</option><option>🏀</option><option>🏒</option><option>🎾</option><option>🏉</option><option>🏆</option><option>🦁</option><option>🐺</option><option>👑</option><option>🔥</option></select></div><button class="btn" type="submit">Enregistrer mon profil</button></form>
-          </div>
-          <div class="card" style="margin-top:13px"><h3>Partager le Labo</h3><p class="muted tiny">Invite tes amis à rejoindre ta compétition.</p><button class="btn secondary" id="inviteBtn2">Copier le lien d'invitation</button></div>
-        </section>
-      </main>
-      <aside class="side-card">
-        <div class="card"><div class="eyebrow">TON OBJECTIF</div><h3 style="font:700 17px Cinzel">Le sommet du classement</h3><p class="muted tiny">Chaque bon pronostic te rapproche de la première place. Reste régulier et défie tes amis !</p><div style="font-size:32px;text-align:center;padding:10px">🎟️ 🏆 🎟️</div></div>
-        <div class="card" style="margin-top:13px"><h3 style="margin:0 0 10px">Règles des points</h3><div class="ranking-row"><span>🎯</span><span>Bon résultat</span><strong class="gold">3 pts</strong></div><div class="ranking-row"><span>❌</span><span>Mauvais résultat</span><strong>0 pt</strong></div><p class="tiny muted">Les résultats sont validés à la clôture du match par l'administrateur.</p></div>
-        <div class="card hidden" id="adminPanel" style="margin-top:13px"><h3>🛡️ Administration</h3><p class="tiny muted">Ton compte dispose des droits d'administration.</p><p class="tiny">La clôture et la saisie des scores se font depuis les matchs.</p></div>
-      </aside>
-    </div>
-    <footer>LE LABO DU CLOS · PRONOSTICS ENTRE AMIS · Joue pour le plaisir et respecte les autres.<br><span style="opacity:.55;font-family:cursive">🐇 Mon petit bichon</span></footer>
+
+<div id="vueMatchs" style="display:none">
+  <div class="carte">
+    <b id="salut"></b>
+    <button class="lien" id="btnDeco">Se déconnecter</button>
   </div>
-  <nav class="nav">
-    <button class="active" data-page="Matches"><b>⚽</b>Matchs</button><button data-page="Ranking"><b>🏅</b>Classement</button><button data-page="Chat"><b>💬</b>Chat</button><button data-page="Profile"><b>👤</b>Profil</button><button id="musicBtn"><b>♫</b>Son OFF</button>
-  </nav>
+  <div id="listeMatchs"></div>
 </div>
-<div id="resultFx" class="result-fx hidden" aria-live="polite"><div class="result-fx-card"><div id="resultFxIcon" class="result-fx-icon">🏆</div><div id="resultFxTitle" class="result-fx-title">VICTOIRE !</div><div id="resultFxText">Bien joué, champion !</div><button class="btn" id="closeFx" type="button">Continuer</button></div></div>
-<div id="toast" class="toast hidden" role="status"></div>
+
+<div class="lapin">
+  <svg viewBox="0 0 24 24" fill="#ffd700"><ellipse cx="8" cy="6" rx="2" ry="5"/><ellipse cx="16" cy="6" rx="2" ry="5"/><circle cx="12" cy="15" r="6"/></svg>
+  mon petit bichon
+</div>
+<p class="petit">Le Labo du Clos · Ticket d'Or chaque 1er décembre</p>
+</div>
+
 <script>
-(() => {
-  "use strict";
-  // Configuration du projet Supabase existant.
-  const SUPABASE_URL = "https://herjmwgirdrpfawwsfec.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let user = null, profile = null, sportFilter = "Tous", period = "semaine", predictions = [], matches = [], musicContext = null, musicOn = false, chatTimer = null, musicTimer = null, musicMaster = null, authMode = "signup", authBusy = false;
-  const $ = id => document.getElementById(id);
-  const safe = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  function toast(msg){$("toast").textContent=msg;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),3200)}
-  function playEffect(kind="click"){
-    try{
-      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-      const ctx=musicContext||new AC();const now=ctx.currentTime;
-      const notes=kind==="win"?[523.25,659.25,783.99,1046.5]:kind==="lose"?[220,196,164.81]:[440,660];
-      notes.forEach((hz,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==="win"?"triangle":"sine";o.frequency.setValueAtTime(hz,now+i*.11);g.gain.setValueAtTime(.0001,now+i*.11);g.gain.exponentialRampToValueAtTime(kind==="win"?.12:.055,now+i*.11+.025);g.gain.exponentialRampToValueAtTime(.0001,now+i*.11+.22);o.connect(g);g.connect(ctx.destination);o.start(now+i*.11);o.stop(now+i*.11+.24)});
-    }catch(e){}
-  }
-  function showResultFx(win,matchName){
-    $("resultFxIcon").textContent=win?"🏆🎉":"😅🧊";
-    $("resultFxTitle").textContent=win?"PARI GAGNANT !":"PAS CETTE FOIS…";
-    $("resultFxText").textContent=win?`Excellent pronostic sur ${matchName} ! +3 points pour toi.`:`Le match ${matchName} ne t'a pas souri. La revanche arrive !`;
-    $("resultFx").classList.remove("hidden");playEffect(win?"win":"lose");
-    if(win && window.confetti){window.confetti({particleCount:120,spread:80,origin:{y:.62},colors:["#f3c96a","#9b73ff","#ffffff"]})}
-  }
-  $("closeFx").onclick=()=>$("resultFx").classList.add("hidden");
-  function message(el,msg,type=""){el.innerHTML=msg?`<div class="message ${type}">${safe(msg)}</div>`:""}
-  function setAuthMode(mode){authMode=mode;const signup=authMode==="signup";$("tabLogin").classList.toggle("active",!signup);$("tabSignup").classList.toggle("active",signup);$("pseudo").classList.toggle("hidden",!signup);$("pseudo").required=signup;$("authSubmit").textContent=signup?"🚀 S’inscrire":"Me connecter";$("authSwitch").textContent=signup?"J’ai déjà un compte, me connecter":"Pas de compte ? Créer un compte";$("password").autocomplete=signup?"new-password":"current-password";message($("authMessage"),"")}
-  $("tabLogin").addEventListener("click",()=>setAuthMode("login"));$("tabSignup").addEventListener("click",()=>setAuthMode("signup"));
-  $("authSwitch").addEventListener("click",()=>setAuthMode(authMode==="signup"?"login":"signup"));
-  $("authForm").addEventListener("submit",async e=>{e.preventDefault();if(authBusy)return;authBusy=true;const signup=authMode==="signup";const email=$("email").value.trim();const password=$("password").value;const pseudo=$("pseudo").value.trim();const btn=$("authSubmit");btn.disabled=true;btn.textContent=signup?"Création du compte…":"Connexion…";message($("authMessage"),"");
-    try{
-      if(!window.supabase?.createClient)throw new Error("Le service de connexion n’a pas chargé. Vérifie ta connexion Internet puis recharge la page.");
-      if(signup){if(pseudo.length<3)throw new Error("Ton pseudo doit contenir au moins 3 caractères.");if(password.length<6)throw new Error("Le mot de passe doit contenir au moins 6 caractères.");const {data,error}=await db.auth.signUp({email,password,options:{data:{pseudo}}});if(error)throw error;
-        if(!data.session){message($("authMessage"),"Compte créé ! Vérifie ta boîte e-mail pour confirmer ton adresse avant de te connecter.","ok");}
-       else{const {error:pe}=await db.from("profiles").upsert({id:data.user.id,pseudo},{onConflict:"id"});if(pe)throw pe;user=data.user;await startApp();}
-      }else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;user=data.user;await startApp();}
-    }catch(err){message($("authMessage"),err.message||"Une erreur est survenue.","error")}finally{authBusy=false;btn.disabled=false;btn.textContent=authMode==="signup"?"🚀 S’inscrire":"Me connecter";}
+const SUPABASE_URL = "https://herjmwgirdrpfawwsfec.supabase.co";
+const SUPABASE_KEY = "sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ---------- Sons (générés par le navigateur, aucun fichier à ajouter) ----------
+let ctx;
+function son(freqs, duree=0.12){
+  try{
+    ctx = ctx || new (window.AudioContext||window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      g.gain.setValueAtTime(0.15, ctx.currentTime+i*duree);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*duree+duree);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime+i*duree); o.stop(ctx.currentTime+i*duree+duree);
+    });
+  }catch(e){}
+}
+const sonClic=()=>son([880,1320]);
+const sonValide=()=>{son([660,880,1320,1760],0.1); try{const u=new SpeechSynthesisUtterance('Parfait !');u.lang='fr-FR';speechSynthesis.speak(u);}catch(e){}};
+document.addEventListener('click',e=>{if(e.target.closest('button'))sonClic()});
+
+// ---------- Musique de fond douce (boucle simple) ----------
+let musiqueOn=false, timerMusique;
+const notes=[262,330,392,330,294,370,440,370];
+let n=0;
+function jouerNote(){ son([notes[n%notes.length]],0.5); n++; }
+document.getElementById('btnMusique').onclick=()=>{
+  musiqueOn=!musiqueOn;
+  if(musiqueOn){jouerNote();timerMusique=setInterval(jouerNote,500);}
+  else clearInterval(timerMusique);
+};
+
+// ---------- Décor 3D : diamants et billets qui flottent ----------
+const canvas=document.getElementById('fond');
+const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,100);
+camera.position.z=12;
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+const lum=new THREE.PointLight(0xffd700,1.2);lum.position.set(5,8,10);scene.add(lum);
+const objets=[];
+for(let i=0;i<14;i++){
+  const diamant=new THREE.Mesh(new THREE.OctahedronGeometry(0.6),new THREE.MeshStandardMaterial({color:0x66e0ff,metalness:.9,roughness:.1}));
+  const billet=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.8,0.02),new THREE.MeshStandardMaterial({color:0x2ecc71,metalness:.3,roughness:.5}));
+  [diamant,billet].forEach(o=>{
+    o.position.set((Math.random()-.5)*20,(Math.random()-.5)*14,(Math.random()-.5)*8-2);
+    o.userData.v=Math.random()*0.02+0.005;
+    scene.add(o);objets.push(o);
   });
-  $("forgotBtn").onclick=async()=>{const email=$("email").value.trim();if(!email){message($("authMessage"),"Entre d'abord ton adresse e-mail.","error");return}const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});message($("authMessage"),error?error.message:"Si cette adresse correspond à un compte, un e-mail de réinitialisation va être envoyé.",error?"error":"ok")};
-  async function startApp(){ $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("userPill").textContent=user.email||"Connecté";await loadProfile();await refreshAll();if(chatTimer)clearInterval(chatTimer);chatTimer=setInterval(loadChat,7000);}
-  async function loadProfile(){let {data,error}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();if(error)console.warn(error);if(!data){const {data:d}=await db.from("profiles").insert({id:user.id,pseudo:user.user_metadata?.pseudo||user.email.split("@")[0]}).select().single();data=d}profile=data||{pseudo:user.email.split("@")[0],avatar:"⚽"};$("profilePseudo").textContent=profile.pseudo||"Joueur";$("profilePseudoInput").value=profile.pseudo||"";$("profileAvatarInput").value=profile.avatar||"⚽";$("profileAvatar").textContent=profile.avatar||"⚽";$("profileEmail").textContent=user.email||"";$("adminPanel").classList.toggle("hidden",profile.role!=="admin");}
-  async function refreshAll(){await Promise.all([loadMatches(),loadPredictions(),loadRanking(),loadChat()]);updateStats()}
-  async function loadMatches(){const {data,error}=await db.from("matches").select("*").order("date_match",{ascending:true});if(error){$("matchesList").innerHTML=`<div class="empty">Impossible de charger les matchs : ${safe(error.message)}</div>`;return}matches=data||[];renderMatches()}
-  async function loadPredictions(){const {data,error}=await db.from("predictions").select("*").eq("user_id",user.id);if(error){console.warn(error);predictions=[]}else predictions=data||[]}
-  function sportEmoji(s){return ({football:"⚽",basket:"🏀",hockey:"🏒",tennis:"🎾",rugby:"🏉"})[s]||"🏟️"}
-  function renderMatches(){
-    matches.forEach(m=>{if(!m.termine)return;const p=predictions.find(x=>x.match_id===m.id);if(!p)return;const key=`lbc-result-${user.id}-${m.id}`;if(localStorage.getItem(key))return;localStorage.setItem(key,"1");const won=Number(p.points||0)>0;setTimeout(()=>showResultFx(won,`${m.equipe_domicile} – ${m.equipe_exterieur}`),500)});
-    const list=matches.filter(m=>sportFilter==="Tous"||m.sport===sportFilter);if(!list.length){$("matchesList").innerHTML='<div class="empty">Aucun match pour ce filtre. Tu peux en ajouter un juste en dessous.</div>';return}
-    $("matchesList").innerHTML=list.map(m=>{const p=predictions.find(x=>x.match_id===m.id);const closed=m.termine||new Date(m.date_match)<new Date();const d=new Date(m.date_match);const dateLabel=isNaN(d)?m.date_match:d.toLocaleString("fr-FR",{dateStyle:"medium",timeStyle:"short"});const result=m.termine?`Score final : ${m.score_domicile??"—"} – ${m.score_exterieur??"—"}`:closed?"Match commencé / en attente du score":"À pronostiquer";return `<article class="match"><div class="match-top"><span>${sportEmoji(m.sport)} ${safe((m.sport||"").toUpperCase())} · ${safe(m.competition||"Match")}</span><span>${safe(dateLabel)}</span></div><div class="teams"><div class="team">${safe(m.equipe_domicile)}</div><div class="versus">VS</div><div class="team">${safe(m.equipe_exterieur)}</div></div><div class="predictions">${["1","N","2"].map((v,i)=>`<button class="pick ${p?.choix===v?"selected":""}" data-match="${safe(m.id)}" data-pick="${v}" ${closed?"disabled":""}>${["1 · DOM.","N · NUL","2 · EXT."][i]}</button>`).join("")}</div><div class="match-bottom"><span>${safe(result)} ${m.termine&&p?`· ${p.points||0} point(s)`:""}</span><span>${p?`Ton choix : ${safe(p.choix)}`:closed?"Pronostics fermés":"Fais ton choix"}</span></div>${profile?.role==="admin"?`<form class="scoreForm" data-id="${safe(m.id)}" style="display:flex;gap:6px;margin-top:12px;align-items:center"><input aria-label="Score domicile" type="number" min="0" placeholder="Dom." value="${m.score_domicile??""}" style="width:65px;background:#0b1120;color:white;border:1px solid #303c58;border-radius:8px;padding:8px"><span>–</span><input aria-label="Score extérieur" type="number" min="0" placeholder="Ext." value="${m.score_exterieur??""}" style="width:65px;background:#0b1120;color:white;border:1px solid #303c58;border-radius:8px;padding:8px"><button class="btn small" type="submit">Clôturer</button></form>`:""}</article>`}).join("");
-  }
-  $("sportFilters").addEventListener("click",e=>{const b=e.target.closest("[data-sport]");if(!b)return;sportFilter=b.dataset.sport;document.querySelectorAll("[data-sport]").forEach(x=>x.classList.toggle("active",x===b));renderMatches()});
-  $("matchesList").addEventListener("click",async e=>{const b=e.target.closest("[data-pick]");if(!b)return;const {match,pick}=b.dataset;const {error}=await db.from("predictions").upsert({user_id:user.id,match_id:match,choix:pick},{onConflict:"user_id,match_id"});if(error){toast("Erreur : "+error.message);return}playEffect("click");toast("Pronostic enregistré !");await loadPredictions();renderMatches();updateStats()});
-  $("matchesList").addEventListener("submit",async e=>{if(!e.target.matches(".scoreForm"))return;e.preventDefault();const f=e.target;const id=f.dataset.id;const nums=f.querySelectorAll("input");const a=Number(nums[0].value),b=Number(nums[1].value);if(nums[0].value===""||nums[1].value===""){toast("Saisis les deux scores.");return}const {error}=await db.rpc("cloturer_match",{p_match_id:id,p_score_domicile:a,p_score_exterieur:b});if(error){toast("Clôture impossible : "+error.message);return}toast("Match clôturé et points calculés.");await refreshAll()});
-  $("matchForm").addEventListener("submit",async e=>{e.preventDefault();const payload={sport:$("matchSport").value,competition:$("competition").value.trim(),equipe_domicile:$("homeTeam").value.trim(),equipe_exterieur:$("awayTeam").value.trim(),date_match:new Date($("matchDate").value).toISOString()};const {error}=await db.from("matches").insert(payload);if(error){toast("Ajout impossible : "+error.message);return}e.target.reset();toast("Match ajouté !");await loadMatches()});
-  function updateStats(){const pts=predictions.reduce((n,p)=>n+Number(p.points||0),0);$("myPoints").textContent=pts;$("myPredictions").textContent=predictions.length}
-  function cutoff(){const now=new Date();if(period==="total")return "2000-01-01T00:00:00.000Z";if(period==="mois")return new Date(now.getFullYear(),now.getMonth(),1).toISOString();const day=(now.getDay()+6)%7;return new Date(now.getFullYear(),now.getMonth(),now.getDate()-day).toISOString()}
-  async function loadRanking(){const {data,error}=await db.from("predictions").select("user_id,points,created_at,profiles(pseudo,avatar)").gte("created_at",cutoff());if(error){$("rankingList").textContent="Classement indisponible : "+error.message;return}const map={};(data||[]).forEach(p=>{const id=p.user_id;map[id]??={id,pseudo:p.profiles?.pseudo||"Joueur",avatar:p.profiles?.avatar||"⚽",points:0,count:0};map[id].points+=Number(p.points||0);map[id].count++});const rows=Object.values(map).sort((a,b)=>b.points-a.points);$("myRank").textContent=rows.findIndex(r=>r.id===user.id)>=0?"#"+(rows.findIndex(r=>r.id===user.id)+1):"—";$("rankingList").innerHTML=rows.length?rows.map((r,i)=>`<div class="ranking-row"><div class="rank">${i+1}</div><div style="display:flex;align-items:center;gap:9px"><span class="avatar">${safe(r.avatar)}</span><div><strong>${safe(r.pseudo)}${r.id===user.id?" (moi)":""}</strong><div class="tiny muted">${r.count} pronostic(s)</div></div></div><strong class="gold">${r.points} pts</strong></div>`).join(""):'<div class="empty">Le classement apparaîtra dès les premiers points.</div>'}
-  document.querySelectorAll("[data-period]").forEach(b=>b.addEventListener("click",()=>{period=b.dataset.period;document.querySelectorAll("[data-period]").forEach(x=>x.classList.toggle("active",x===b));loadRanking()}));
-  async function loadChat(){const {data,error}=await db.from("chat_messages").select("id,user_id,message,created_at,profiles(pseudo,avatar)").order("created_at",{ascending:true}).limit(100);if(error){$("chatList").innerHTML=`<div class="empty">Chat indisponible : ${safe(error.message)}</div>`;return}const list=data||[];$("chatList").innerHTML=list.length?list.map(m=>`<div class="chat-msg ${m.user_id===user.id?"mine":""}"><small>${safe(m.profiles?.pseudo||"Joueur")} · ${new Date(m.created_at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</small>${safe(m.message)}</div>`).join(""):'<div class="empty">Lance la conversation !</div>';$("chatList").scrollTop=$("chatList").scrollHeight}
-  $("chatForm").addEventListener("submit",async e=>{e.preventDefault();const input=$("chatInput"),messageText=input.value.trim();if(!messageText)return;const {error}=await db.from("chat_messages").insert({user_id:user.id,message:messageText});if(error){toast("Message non envoyé : "+error.message);return}input.value="";await loadChat()});
-  $("profileForm").addEventListener("submit",async e=>{e.preventDefault();const pseudo=$("profilePseudoInput").value.trim(),avatar=$("profileAvatarInput").value;if(pseudo.length<3){toast("Le pseudo doit contenir 3 caractères minimum.");return}const {error}=await db.from("profiles").update({pseudo,avatar}).eq("id",user.id);if(error){toast("Profil non modifié : "+error.message);return}await loadProfile();toast("Profil enregistré.")});
-  async function invite(){const link=location.href;try{if(navigator.share)await navigator.share({title:"LE LABO DU CLOS",text:"Rejoins-nous pour les pronostics !",url:link});else{await navigator.clipboard.writeText(link);toast("Lien copié !")}}catch(e){if(e.name!=="AbortError")toast("Partage non disponible sur cet appareil.")}}
-  $("inviteBtn").onclick=invite;$("inviteBtn2").onclick=invite;$("goMatches").onclick=()=>showPage("Matches");
-  function showPage(page){["Matches","Ranking","Chat","Profile"].forEach(p=>$("page"+p).classList.toggle("hidden",p!==page));document.querySelectorAll(".nav [data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));if(page==="Ranking")loadRanking();if(page==="Chat")loadChat()}
-  document.querySelectorAll(".nav [data-page]").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
-  $("logoutBtn").onclick=async()=>{if(chatTimer)clearInterval(chatTimer);await db.auth.signOut();user=null;profile=null;$("appView").classList.add("hidden");$("authView").classList.remove("hidden");setAuthMode("login")};
-  function toggleMusic(){try{
-    if(!musicOn){
-      const AC=window.AudioContext||window.webkitAudioContext;if(!AC){toast("Audio non pris en charge.");return}
-      musicContext=new AC();musicMaster=musicContext.createGain();musicMaster.gain.value=.018;musicMaster.connect(musicContext.destination);
-      const progression=[[110,164.81,220],[98,146.83,196],[130.81,196,261.63],[87.31,130.81,174.61]];let chord=0;
-      const playPad=()=>{if(!musicContext||musicContext.state==="closed")return;const now=musicContext.currentTime;progression[chord%progression.length].forEach((hz,i)=>{const osc=musicContext.createOscillator(),gain=musicContext.createGain();osc.type="sine";osc.frequency.value=hz;gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime([.48,.25,.16][i],now+.7);gain.gain.setValueAtTime([.48,.25,.16][i],now+2.1);gain.gain.exponentialRampToValueAtTime(.0001,now+2.9);osc.connect(gain);gain.connect(musicMaster);osc.start(now);osc.stop(now+3)});chord++};
-      playPad();musicTimer=setInterval(playPad,2900);musicOn=true;$("musicBtn").innerHTML="<b>♫</b>Son ON";toast("Ambiance originale activée. Appuie à nouveau pour couper.");
-    }else{
-      if(musicTimer)clearInterval(musicTimer);musicTimer=null;musicContext?.close();musicContext=null;musicMaster=null;musicOn=false;$("musicBtn").innerHTML="<b>♫</b>Son OFF";
-    }
-  }catch(e){toast("Impossible d'activer le son.")}}
-  $("musicBtn").onclick=toggleMusic;
-  setAuthMode("signup");
-  db.auth.getSession().then(async({data})=>{if(data.session){user=data.session.user;await startApp()}});
-  db.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_IN"&&session?.user&&!user){user=session.user;await startApp()}});
-  // Version autonome : aucune image ni fichier externe à ajouter sur GitHub.
-})();
+}
+function anime(){
+  requestAnimationFrame(anime);
+  objets.forEach(o=>{o.rotation.x+=o.userData.v;o.rotation.y+=o.userData.v*1.4;o.position.y+=Math.sin(Date.now()/1000+o.position.x)*0.004;});
+  renderer.render(scene,camera);
+}
+anime();
+addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
+
+// ---------- Connexion ----------
+const erreur=document.getElementById('erreur');
+function montrerErreur(m){erreur.textContent=m;const c=document.getElementById('carteLogin');c.classList.remove('tremble');void c.offsetWidth;c.classList.add('tremble');}
+
+document.getElementById('btnConnexion').onclick=async()=>{
+  const {error}=await sb.auth.signInWithPassword({email:email.value,password:mdp.value});
+  if(error) montrerErreur('Mot de passe ou e-mail incorrect.'); else ouvrirMatchs();
+};
+document.getElementById('btnInscription').onclick=async()=>{
+  const {error}=await sb.auth.signUp({email:email.value,password:mdp.value});
+  if(error) montrerErreur(error.message); else ouvrirMatchs();
+};
+document.getElementById('btnOubli').onclick=async()=>{
+  if(!email.value){montrerErreur('Écris d\'abord ton e-mail.');return;}
+  await sb.auth.resetPasswordForEmail(email.value);
+  erreur.style.color='#00ff9d';erreur.textContent='E-mail de réinitialisation envoyé.';
+};
+document.getElementById('btnDeco').onclick=async()=>{
+  await sb.auth.signOut();location.reload();
+};
+
+// ---------- Matchs et pronostics ----------
+async function ouvrirMatchs(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user) return;
+  vueAccueil.style.display='none';vueMatchs.style.display='block';
+  salut.textContent='Bienvenue '+user.email;
+  await sb.from('profiles').update({en_ligne:true,last_seen:new Date().toISOString()}).eq('id',user.id);
+  const {data:matchs}=await sb.from('matchs').select('*').order('date_match',{ascending:true});
+  const liste=document.getElementById('listeMatchs');
+  liste.innerHTML='';
+  (matchs||[]).forEach(m=>{
+    const quand=m.date_match?new Date(m.date_match).toLocaleString('fr-FR',{dateStyle:'full',timeStyle:'short'}):'Date à venir';
+    const div=document.createElement('div');
+    div.className='carte match';
+    div.innerHTML='<div class="quand">'+quand+'</div><b>'+(m.equipe1||'Équipe 1')+' vs '+(m.equipe2||'Équipe 2')+'</b>'+
+      '<div class="choix"><button data-c="1">1</button><button data-c="N">Nul</button><button data-c="2">2</button></div>'+
+      '<input class="score" placeholder="Score exact (ex : 2-1)"><input class="buteurs" placeholder="Buteurs (ex : Mbappé, Griezmann)">'+
+      '<button class="dore valider">Valider mon pronostic</button>';
+    let choix=null;
+    div.querySelectorAll('.choix button').forEach(b=>b.onclick=()=>{choix=b.dataset.c;div.querySelectorAll('.choix button').forEach(x=>x.classList.remove('actif'));b.classList.add('actif');});
+    div.querySelector('.valider').onclick=async()=>{
+      if(!choix){alert('Choisis 1, Nul ou 2.');return;}
+      const {error}=await sb.from('pronostics').upsert({match_id:m.id,user_id:user.id,choix:choix,score_prevu:div.querySelector('.score').value,buteurs:div.querySelector('.buteurs').value},{onConflict:'match_id,user_id'});
+      if(error) alert('Erreur : '+error.message); else sonValide();
+    };
+    liste.appendChild(div);
+  });
+}
+sb.auth.getSession().then(({data})=>{if(data.session)ouvrirMatchs();});
 </script>
 </body>
-</html>          
+</html>
