@@ -2,186 +2,292 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Le Labo du Clos</title>
-<meta name="theme-color" content="#0b0420">
+<meta name="theme-color" content="#030211">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#0b0420;color:#fff;min-height:100vh;overflow-x:hidden}
-#fond{position:fixed;inset:0;z-index:0}
-.page{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:20px}
-h1{text-align:center;font-size:2.2rem;margin:20px 0 4px;background:linear-gradient(90deg,#ffd700,#fff3a0,#ffd700);-webkit-background-clip:text;color:transparent;text-shadow:0 0 30px #ffd70088}
-.sous{text-align:center;color:#c9b6ff;margin-bottom:20px}
-.carte{background:#1a0b3dcc;border:1px solid #ffd70066;border-radius:18px;padding:20px;margin:14px 0;backdrop-filter:blur(6px);box-shadow:0 0 25px #8a2be244}
-.carte.tremble{animation:tremble .4s}
-@keyframes tremble{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-input{width:100%;padding:14px;margin:6px 0;border-radius:12px;border:1px solid #8a2be2;background:#0b0420;color:#fff;font-size:1rem}
-button{width:100%;padding:14px;margin:8px 0;border:0;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .1s}
-button:active{transform:scale(.96)}
-.vert{background:#00ff9d;color:#032}
-.dore{background:linear-gradient(90deg,#ffd700,#ffb700);color:#321}
-.lien{background:none;color:#c9b6ff;font-weight:400;text-decoration:underline;font-size:.9rem}
-.erreur{color:#ff5470;text-align:center;min-height:1.2em;margin-top:6px}
-.match{display:flex;flex-direction:column;gap:8px}
-.match .quand{color:#ffd700;font-size:.85rem}
-.choix{display:flex;gap:8px}
-.choix button{margin:0;background:#2a1366;color:#fff;border:1px solid #8a2be2}
-.choix button.actif{background:#ffd700;color:#321}
-.petit{font-size:.7rem;color:#8d7bbf;text-align:center;margin-top:30px}
-.lapin{opacity:.35;text-align:center;margin-top:24px;font-size:.65rem}
-.lapin svg{width:26px;height:26px;display:block;margin:0 auto 2px}
-.musique{position:fixed;top:12px;right:12px;z-index:5;width:46px;height:46px;border-radius:50%;padding:0;background:#ffd700;color:#321}
-.pastille{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-.on{background:#00ff9d}.off{background:#666}
+html,body{height:100%;overflow:hidden;background:#030211;font-family:system-ui,sans-serif;color:#fff}
+#flou{position:fixed;inset:-40px;background:#030211 center/cover;filter:blur(28px) brightness(.5)}
+#vue{position:fixed;left:0;right:0;top:0;bottom:58px;display:flex;overflow:hidden}
+#stage{position:relative;flex:none;margin:auto;width:min(100vw,calc((100vh - 58px)*1.8331));aspect-ratio:1604/875;container-type:inline-size;animation:respire 6s ease-in-out infinite}
+@keyframes respire{50%{filter:brightness(1.12) saturate(1.1)}}
+#stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.12) 50%,transparent 58%);background-size:260% 100%;animation:eclat 7s linear infinite}
+@keyframes eclat{from{background-position:130% 0}to{background-position:-130% 0}}
+#art{width:100%;height:100%;display:block}
+#zones{position:absolute;inset:0}
+#zones.tremble{animation:tr .4s}
+@keyframes tr{25%{transform:translateX(-1cqw)}75%{transform:translateX(1cqw)}}
+.z{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.45cqw;line-height:1.15;color:#fff}
+.z small{font-size:1cqw;opacity:.85;display:block}
+.patch{background:rgba(5,12,36,.95);border:1px solid #2aa6d8;border-radius:.7cqw;box-shadow:0 0 .8cqw #29d8ff55}
+.patch2{background:rgba(36,62,90,.97);border-radius:.8cqw}
+.champ{background:rgba(9,22,48,.97);border-radius:.8cqw}
+.z input{width:100%;height:100%;background:transparent;border:0;outline:0;color:#fff;font-size:max(16px,1.5cqw);padding:0 1cqw;text-align:left}
+.big input{text-align:center;font-size:max(16px,3cqw);font-weight:800}
+.nom input{text-align:center;font-weight:800;font-size:max(16px,1.9cqw)}
+.btn{cursor:pointer;border-radius:1cqw}
+.btn:hover{box-shadow:inset 0 0 1.4cqw #ffd34d}
+.btn:active{background:rgba(255,255,255,.2)}
+.sel{box-shadow:inset 0 0 1.6cqw #ffd34d,0 0 1.2cqw #ffd34d}
+.gbtn{background:linear-gradient(90deg,#ff3d9a,#3d8bff);font-weight:800;font-size:2cqw;border-radius:2cqw}
+.ckb{background:rgba(9,22,48,.9);border:1px solid #29d8ff;border-radius:.4cqw;cursor:pointer}
+.ckb.on:after{content:"✓";color:#29d8ff;font-size:2cqw}
+.col{flex-direction:column;justify-content:flex-start;align-items:stretch;overflow:auto;padding:.6cqw .8cqw;text-align:left;gap:.5cqw}
+.it{display:flex;align-items:center;gap:.8cqw;font-size:1.5cqw}
+.it small{margin-left:auto}
+.it i{width:1.1cqw;height:1.1cqw;border-radius:50%;background:#666;flex:none}
+.it i.v{background:#00ff9d;box-shadow:0 0 .6cqw #00ff9d}
+.ms{background:rgba(30,60,100,.55);border-radius:.8cqw;padding:.5cqw .9cqw;font-size:1.35cqw}
+.clk{flex-direction:column}
+.clk b{font-size:3.2cqw;color:#7df1ff}
+.mini{flex-direction:row!important;gap:.8cqw}
+.mini b{font-size:1.25cqw}
+.mini small{font-size:1.1cqw}
+.circ{border-radius:50%}
+.circ b{font-size:2.4cqw}
+.row{font-size:1.25cqw;justify-content:space-between;padding:0 .6cqw}
+#bande{position:fixed;left:0;right:0;bottom:0;height:58px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 12px 6px;z-index:4}
+#horloge{font-size:.75rem;color:#bfeaff;min-width:0}
+#nav{display:flex;gap:6px}
+#bande button{background:rgba(5,12,36,.85);border:1px solid #2aa6d8;color:#fff;border-radius:12px;padding:4px 10px;font-size:1.1rem;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+#bande button small{font-size:.6rem}
+#bande button.on{border-color:#ffd34d;box-shadow:0 0 10px #ffd34d88}
+#toast{position:fixed;left:50%;bottom:70px;transform:translateX(-50%);z-index:6;background:rgba(5,12,36,.96);border:1px solid #29d8ff;border-radius:12px;padding:10px 16px;font-size:.95rem;opacity:0;pointer-events:none;transition:opacity .3s;max-width:90vw;text-align:center}
+#toast.on{opacity:1}
+#toast.ko{border-color:#ff5470;color:#ffb4c0}
+#etincelles{position:fixed;inset:0;z-index:2;pointer-events:none}
+@media(orientation:portrait) and (max-width:700px){#vue{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}#stage{width:calc((100vh - 58px)*1.8331)}}
+@media(prefers-reduced-motion:reduce){#stage,#stage:after{animation:none}}
 </style>
 </head>
 <body>
-<canvas id="fond"></canvas>
-<button class="musique" id="btnMusique" title="Musique">&#9835;</button>
-<div class="page">
-<h1>Le Labo du Clos</h1>
-<p class="sous">Pronostique, gagne, deviens Ticket d'Or</p>
-
-<div id="vueAccueil">
-  <div class="carte" id="carteLogin">
-    <input id="email" type="email" placeholder="Adresse e-mail">
-    <input id="mdp" type="password" placeholder="Mot de passe">
-    <div class="erreur" id="erreur"></div>
-    <button class="vert" id="btnConnexion">Se connecter</button>
-    <button class="dore" id="btnInscription">Créer mon compte</button>
-    <button class="lien" id="btnOubli">Mot de passe oublié</button>
+<div id="flou"></div>
+<div id="vue"><div id="stage"><img id="art" alt="Le Labo du Clos"><div id="zones"></div></div></div>
+<canvas id="etincelles"></canvas>
+<div id="bande">
+  <span id="horloge"></span>
+  <div id="nav" style="display:none">
+    <button data-p="match">⚽<small>Match</small></button>
+    <button data-p="chat">💬<small>Chat</small></button>
+    <button data-p="concours">🏆<small>Concours</small></button>
+    <button data-p="profil">👤<small>Profil</small></button>
+    <button id="deco">⏻<small>Quitter</small></button>
   </div>
+  <button id="btnMusique" title="Musique">🔇</button>
 </div>
-
-<div id="vueMatchs" style="display:none">
-  <div class="carte">
-    <b id="salut"></b>
-    <button class="lien" id="btnDeco">Se déconnecter</button>
-  </div>
-  <div id="listeMatchs"></div>
-</div>
-
-<div class="lapin">
-  <svg viewBox="0 0 24 24" fill="#ffd700"><ellipse cx="8" cy="6" rx="2" ry="5"/><ellipse cx="16" cy="6" rx="2" ry="5"/><circle cx="12" cy="15" r="6"/></svg>
-  mon petit bichon
-</div>
-<p class="petit">Le Labo du Clos · Ticket d'Or chaque 1er décembre</p>
-</div>
+<div id="toast"></div>
 
 <script>
-const SUPABASE_URL = "https://herjmwgirdrpfawwsfec.supabase.co";
-const SUPABASE_KEY = "sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb=supabase.createClient("https://herjmwgirdrpfawwsfec.supabase.co","sb_publishable_1-d455iPyqKCBsK-s70tjA_0e-l8hEh");
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let U=null,PR={},page='',mode='ins',timers=[],hb,ckz,CR,MS=[],mi=0,ch=null;
+const nomU=()=>PR.pseudo||(U&&U.email.split('@')[0])||'Joueur';
 
-// ---------- Sons (générés par le navigateur, aucun fichier à ajouter) ----------
+// ---- Sons et musique (générés par le navigateur) ----
 let ctx;
-function son(freqs, duree=0.12){
-  try{
-    ctx = ctx || new (window.AudioContext||window.webkitAudioContext)();
-    freqs.forEach((f,i)=>{
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.type='sine'; o.frequency.value=f;
-      g.gain.setValueAtTime(0.15, ctx.currentTime+i*duree);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*duree+duree);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(ctx.currentTime+i*duree); o.stop(ctx.currentTime+i*duree+duree);
-    });
-  }catch(e){}
+function son(f,d=0.12){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
+  f.forEach((x,i)=>{const o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime+i*d;
+  o.type='sine';o.frequency.value=x;g.gain.setValueAtTime(0.15,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);
+  o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+d);});}catch(e){}}
+const sonValide=()=>{son([660,880,1320,1760],0.1);try{const u=new SpeechSynthesisUtterance('Parfait !');u.lang='fr-FR';speechSynthesis.speak(u);}catch(e){}};
+document.addEventListener('click',e=>{if(e.target.closest('.btn,.gbtn,.ckb,button'))son([880,1320])});
+let mu=false,tm,ni=0;const nt=[262,330,392,330,294,370,440,370];
+function musique(){mu=!mu;clearInterval(tm);if(mu)tm=setInterval(()=>son([nt[ni++%8]],0.5),500);$('btnMusique').textContent=mu?'♫':'🔇';}
+$('btnMusique').onclick=musique;
+
+// ---- Messages et horloge ----
+let tt;
+function toast(m,ko){const t=$('toast');t.textContent=m;t.className=ko?'on ko':'on';clearTimeout(tt);tt=setTimeout(()=>t.className='',3000);
+  if(ko){const z=$('zones');z.classList.remove('tremble');void z.offsetWidth;z.classList.add('tremble');}}
+const soon=()=>toast('Bientôt disponible ✨');
+function tick(){const d=new Date(),h=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),
+  j=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.querySelectorAll('.clk').forEach(e=>e.innerHTML='<b>'+h+'</b><small>'+j+'</small>');
+  $('horloge').textContent=j+' · '+h;}
+setInterval(tick,1000);
+
+// ---- Zones posées sur l'illustration (coordonnées du dessin d'origine) ----
+const FW=1604,FH=875,OY=710;
+function Z(x1,y1,x2,y2,cls,html,fn){const d=document.createElement('div');d.className='z '+(cls||'');
+  d.style.cssText='left:'+x1/FW*100+'%;top:'+(y1-OY)/FH*100+'%;width:'+(x2-x1)/FW*100+'%;height:'+(y2-y1)/FH*100+'%';
+  if(html!=null)d.innerHTML=html;if(fn){d.classList.add('btn');d.onclick=fn;}$('zones').appendChild(d);return d;}
+
+// ---- Navigation entre les pages ----
+const PG={accueil:{img:'accueil.webp',fn:accueilPg,fx:.84},match:{img:'match.webp',fn:matchPg,fx:.5},chat:{img:'chat.webp',fn:chatPg,fx:.6},concours:{img:'concours.webp',fn:concoursPg,fx:.5},profil:{img:'profil.webp',fn:profilPg,fx:.5}};
+function go(p){timers.forEach(clearInterval);timers=[];$('zones').innerHTML='';page=p;
+  $('art').src=PG[p].img;$('flou').style.backgroundImage='url('+PG[p].img+')';
+  $('nav').style.display=U&&p!=='accueil'?'flex':'none';
+  $('horloge').style.display=(p==='accueil'||p==='chat')?'none':'block';
+  $('btnMusique').style.display=p==='accueil'?'none':'flex';
+  document.querySelectorAll('#nav [data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  PG[p].fn();tick();
+  const v=$('vue');v.scrollTo({left:PG[p].fx*v.scrollWidth-v.clientWidth/2,behavior:'smooth'});
+  if(v.scrollWidth>v.clientWidth+5&&!window.indice){window.indice=1;setTimeout(()=>toast('Fais glisser l\'écran ↔ pour te déplacer'),600);}}
+$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='deco')return sortir();go(b.dataset.p);};
+
+// ---- Accueil : inscription / connexion ----
+function accueilPg(){
+  Z(1172,993,1470,1035,'champ','<input id="em" type="email" placeholder="Entrez votre e-mail" autocomplete="email">');
+  Z(1172,1083,1470,1125,'champ','<input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password">');
+  Z(1470,1083,1513,1125,'',null,()=>{const i=$('pw');i.type=i.type==='password'?'text':'password';});
+  Z(1365,1130,1514,1152,'',null,oubli);
+  if(mode==='ins'){
+    Z(1172,1191,1470,1233,'champ','<input id="pw2" type="password" placeholder="Répétez le mot de passe">');
+    ckz=Z(1160,1252,1188,1282,'ckb','');ckz.onclick=()=>ckz.classList.toggle('on');
+    Z(1304,1250,1397,1276,'',null,soon);
+  }else Z(1155,1160,1520,1305,'patch2','');
+  Z(1160,1320,1513,1372,'gbtn',mode==='ins'?"S'INSCRIRE":'SE CONNECTER',valider);
+  Z(1160,1385,1513,1424,'patch2',mode==='ins'?'Déjà un compte ? <u>Se connecter</u>':"Pas de compte ? <u>S'inscrire</u>",()=>{mode=mode==='ins'?'con':'ins';go('accueil');});
+  Z(1435,1526,1570,1564,'',null,musique);
+  Z(1272,741,1551,850,'patch clk');
+  const B=Z(93,1345,477,1437,'patch col','<small>Chargement…</small>');
+  const mois=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'}).toUpperCase();
+  sb.from('profiles').select('pseudo,points_mois').order('points_mois',{ascending:false,nullsFirst:false}).limit(1).then(({data})=>{
+    const r=(data||[])[0];if(page==='accueil')B.innerHTML='<small>MEILLEUR PRONOSTIQUEUR · '+mois+'</small><b>'+(r?esc(r.pseudo||'—'):'—')+'</b><small>'+(r?r.points_mois||0:0)+' points</small>';});
 }
-const sonClic=()=>son([880,1320]);
-const sonValide=()=>{son([660,880,1320,1760],0.1); try{const u=new SpeechSynthesisUtterance('Parfait !');u.lang='fr-FR';speechSynthesis.speak(u);}catch(e){}};
-document.addEventListener('click',e=>{if(e.target.closest('button'))sonClic()});
-
-// ---------- Musique de fond douce (boucle simple) ----------
-let musiqueOn=false, timerMusique;
-const notes=[262,330,392,330,294,370,440,370];
-let n=0;
-function jouerNote(){ son([notes[n%notes.length]],0.5); n++; }
-document.getElementById('btnMusique').onclick=()=>{
-  musiqueOn=!musiqueOn;
-  if(musiqueOn){jouerNote();timerMusique=setInterval(jouerNote,500);}
-  else clearInterval(timerMusique);
-};
-
-// ---------- Décor 3D : diamants et billets qui flottent ----------
-const canvas=document.getElementById('fond');
-const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
-renderer.setSize(innerWidth,innerHeight);
-const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,100);
-camera.position.z=12;
-scene.add(new THREE.AmbientLight(0xffffff,0.6));
-const lum=new THREE.PointLight(0xffd700,1.2);lum.position.set(5,8,10);scene.add(lum);
-const objets=[];
-for(let i=0;i<14;i++){
-  const diamant=new THREE.Mesh(new THREE.OctahedronGeometry(0.6),new THREE.MeshStandardMaterial({color:0x66e0ff,metalness:.9,roughness:.1}));
-  const billet=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.8,0.02),new THREE.MeshStandardMaterial({color:0x2ecc71,metalness:.3,roughness:.5}));
-  [diamant,billet].forEach(o=>{
-    o.position.set((Math.random()-.5)*20,(Math.random()-.5)*14,(Math.random()-.5)*8-2);
-    o.userData.v=Math.random()*0.02+0.005;
-    scene.add(o);objets.push(o);
-  });
+async function valider(){
+  const e=$('em').value.trim(),p=$('pw').value;
+  if(!e||p.length<6)return toast('E-mail et mot de passe (6 caractères minimum) requis',1);
+  if(mode==='ins'){
+    if(p!==$('pw2').value)return toast('Les deux mots de passe sont différents',1);
+    if(!ckz.classList.contains('on'))return toast('Accepte le règlement pour continuer',1);
+    const {error}=await sb.auth.signUp({email:e,password:p,options:{data:{pseudo:e.split('@')[0]}}});
+    if(error)return toast(error.message,1);
+  }else{
+    const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+    if(error)return toast('Mot de passe ou e-mail incorrect.',1);
+  }
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session)return toast('Compte créé : confirme ton e-mail, puis connecte-toi.');
+  sonValide();entrer();
 }
-function anime(){
-  requestAnimationFrame(anime);
-  objets.forEach(o=>{o.rotation.x+=o.userData.v;o.rotation.y+=o.userData.v*1.4;o.position.y+=Math.sin(Date.now()/1000+o.position.x)*0.004;});
-  renderer.render(scene,camera);
+async function oubli(){const e=$('em').value.trim();if(!e)return toast("Écris d'abord ton e-mail",1);
+  await sb.auth.resetPasswordForEmail(e);toast('E-mail de réinitialisation envoyé ✉️');}
+async function entrer(){
+  const {data:{user}}=await sb.auth.getUser();if(!user)return false;U=user;
+  const {data:p}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+  const now=new Date().toISOString();
+  if(p){PR=p;await sb.from('profiles').update({en_ligne:true,last_seen:now}).eq('id',user.id);}
+  else{PR={pseudo:(user.user_metadata&&user.user_metadata.pseudo)||user.email.split('@')[0]};await sb.from('profiles').insert({id:user.id,pseudo:PR.pseudo,en_ligne:true,last_seen:now});}
+  clearInterval(hb);hb=setInterval(()=>sb.from('profiles').update({en_ligne:true,last_seen:new Date().toISOString()}).eq('id',U.id),60000);
+  go('match');return true;
 }
-anime();
-addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();});
+async function sortir(){if(U)await sb.from('profiles').update({en_ligne:false}).eq('id',U.id);await sb.auth.signOut();U=null;PR={};clearInterval(hb);go('accueil');}
+addEventListener('pagehide',()=>{if(U)sb.from('profiles').update({en_ligne:false}).eq('id',U.id);});
 
-// ---------- Connexion ----------
-const erreur=document.getElementById('erreur');
-function montrerErreur(m){erreur.textContent=m;const c=document.getElementById('carteLogin');c.classList.remove('tremble');void c.offsetWidth;c.classList.add('tremble');}
-
-document.getElementById('btnConnexion').onclick=async()=>{
-  const {error}=await sb.auth.signInWithPassword({email:email.value,password:mdp.value});
-  if(error) montrerErreur('Mot de passe ou e-mail incorrect.'); else ouvrirMatchs();
-};
-document.getElementById('btnInscription').onclick=async()=>{
-  const {error}=await sb.auth.signUp({email:email.value,password:mdp.value});
-  if(error) montrerErreur(error.message); else ouvrirMatchs();
-};
-document.getElementById('btnOubli').onclick=async()=>{
-  if(!email.value){montrerErreur('Écris d\'abord ton e-mail.');return;}
-  await sb.auth.resetPasswordForEmail(email.value);
-  erreur.style.color='#00ff9d';erreur.textContent='E-mail de réinitialisation envoyé.';
-};
-document.getElementById('btnDeco').onclick=async()=>{
-  await sb.auth.signOut();location.reload();
-};
-
-// ---------- Matchs et pronostics ----------
-async function ouvrirMatchs(){
-  const {data:{user}}=await sb.auth.getUser();
-  if(!user) return;
-  vueAccueil.style.display='none';vueMatchs.style.display='block';
-  salut.textContent='Bienvenue '+user.email;
-  await sb.from('profiles').update({en_ligne:true,last_seen:new Date().toISOString()}).eq('id',user.id);
-  const {data:matchs}=await sb.from('matchs').select('*').order('date_match',{ascending:true});
-  const liste=document.getElementById('listeMatchs');
-  liste.innerHTML='';
-  (matchs||[]).forEach(m=>{
-    const quand=m.date_match?new Date(m.date_match).toLocaleString('fr-FR',{dateStyle:'full',timeStyle:'short'}):'Date à venir';
-    const div=document.createElement('div');
-    div.className='carte match';
-    div.innerHTML='<div class="quand">'+quand+'</div><b>'+(m.equipe1||'Équipe 1')+' vs '+(m.equipe2||'Équipe 2')+'</b>'+
-      '<div class="choix"><button data-c="1">1</button><button data-c="N">Nul</button><button data-c="2">2</button></div>'+
-      '<input class="score" placeholder="Score exact (ex : 2-1)"><input class="buteurs" placeholder="Buteurs (ex : Mbappé, Griezmann)">'+
-      '<button class="dore valider">Valider mon pronostic</button>';
-    let choix=null;
-    div.querySelectorAll('.choix button').forEach(b=>b.onclick=()=>{choix=b.dataset.c;div.querySelectorAll('.choix button').forEach(x=>x.classList.remove('actif'));b.classList.add('actif');});
-    div.querySelector('.valider').onclick=async()=>{
-      if(!choix){alert('Choisis 1, Nul ou 2.');return;}
-      const {error}=await sb.from('pronostics').upsert({match_id:m.id,user_id:user.id,choix:choix,score_prevu:div.querySelector('.score').value,buteurs:div.querySelector('.buteurs').value},{onConflict:'match_id,user_id'});
-      if(error) alert('Erreur : '+error.message); else sonValide();
-    };
-    liste.appendChild(div);
-  });
+// ---- Match : pronostic ----
+async function matchPg(){
+  Z(22,728,296,797,'patch','<span>👤 '+esc(nomU())+'<br><small>'+(PR.points||0)+' pts</small></span>');
+  Z(1328,728,1584,797,'patch','<span>Mon profil<br><small>'+(PR.points||0)+' pts</small></span>',()=>go('profil'));
+  if(!MS.length){const {data}=await sb.from('matchs').select('*').order('date_match',{ascending:true});MS=data||[];
+    const k=MS.findIndex(m=>m.date_match&&new Date(m.date_match)>=Date.now());mi=k<0?0:k;}
+  const m=MS[mi];
+  if(page!=='match')return;
+  if(!m)return void Z(450,1000,1150,1100,'patch','Aucun match pour l\'instant.<br>Ajoute-en dans Supabase, table matchs.');
+  const {data:pr}=await sb.from('pronostics').select('*').eq('match_id',String(m.id)).eq('user_id',U.id).maybeSingle();
+  if(page!=='match')return;
+  ch=pr?pr.choix:null;const sc=pr&&pr.score_prevu?pr.score_prevu.split('-'):['',''];
+  const q=m.date_match?new Date(m.date_match).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Date à venir';
+  const nav=d=>()=>{mi=(mi+d+MS.length)%MS.length;go('match');};
+  Z(762,818,802,848,'patch','◀',nav(-1));Z(985,818,1025,848,'patch','▶',nav(1));
+  Z(805,818,982,848,'patch',esc(q));
+  Z(677,905,930,940,'patch',esc(m.sport||'Match'));
+  const ini=s=>esc((s||'?').trim().slice(0,3).toUpperCase());
+  Z(512,905,648,1043,'patch circ','<b>'+ini(m.equipe1)+'</b>');Z(962,905,1085,1043,'patch circ','<b>'+ini(m.equipe2)+'</b>');
+  Z(500,1048,660,1092,'patch',esc(m.equipe1||'Équipe 1'));Z(900,1048,1130,1092,'patch',esc(m.equipe2||'Équipe 2'));
+  Z(478,1104,682,1174,'champ big','<input id="s1" inputmode="numeric" maxlength="2" placeholder="0" value="'+esc(sc[0])+'">');
+  Z(922,1104,1128,1174,'champ big','<input id="s2" inputmode="numeric" maxlength="2" placeholder="0" value="'+esc(sc[1])+'">');
+  const R=[];
+  [[451,668,'1'],[694,910,'N'],[936,1153,'2']].forEach(([a,b,v])=>{const z=Z(a,1262,b,1316,'',null,()=>{ch=v;R.forEach(r=>r[0].classList.toggle('sel',r[1]===ch));});R.push([z,v]);z.classList.toggle('sel',v===ch);});
+  Z(453,1430,660,1478,'champ','<input id="cm" placeholder="Mon pronostic" value="'+esc(pr&&pr.commentaire)+'">');
+  Z(698,1430,906,1478,'champ','<input id="bt" placeholder="Butteur" value="'+esc(pr&&pr.buteurs)+'">');
+  Z(944,1430,1152,1478,'champ','<input id="df" inputmode="numeric" placeholder="Écart" value="'+esc(pr&&pr.diff_buts)+'">');
+  Z(641,1508,962,1562,'',null,()=>enregistrer(m));
 }
-sb.auth.getSession().then(({data})=>{if(data.session)ouvrirMatchs();});
+async function enregistrer(m){
+  if(!ch)return toast('Choisis Victoire DOM, Match nul ou Victoire EXT',1);
+  if(m.date_match&&new Date(m.date_match)<Date.now())return toast('Ce match a déjà commencé',1);
+  const a=$('s1').value,b=$('s2').value;
+  const {error}=await sb.from('pronostics').upsert({match_id:String(m.id),user_id:U.id,choix:ch,score_prevu:(a!==''&&b!=='')?a+'-'+b:null,buteurs:$('bt').value,diff_buts:$('df').value,commentaire:$('cm').value},{onConflict:'match_id,user_id'});
+  if(error)return toast('Erreur : '+error.message,1);
+  sonValide();toast('Pronostic validé 🎉');
+}
+
+// ---- Chat ----
+function chatPg(){
+  Z(1383,730,1585,757,'patch clk mini');
+  Z(1345,765,1585,802,'',null,soon);Z(20,840,95,1420,'',null,soon);Z(30,730,70,770,'',null,soon);
+  Z(1365,870,1592,1425,'patch','Discussions privées<br><small>bientôt</small>',soon);
+  const L=Z(108,893,432,1540,'patch col',''),C=Z(375,848,432,880,'patch',''),N=Z(735,938,860,962,'patch',''),M=Z(640,995,1335,1385,'patch col','');
+  Z(705,1403,1140,1448,'champ','<input id="msg" placeholder="Écrire un message…" maxlength="300">');
+  Z(1270,1380,1322,1420,'patch','➤',envoyer);
+  $('msg').onkeydown=e=>{if(e.key==='Enter')envoyer();};
+  CR=async()=>{
+    const [pf,ms]=await Promise.all([sb.from('profiles').select('pseudo,en_ligne,last_seen'),sb.from('messages').select('*').order('created_at',{ascending:false}).limit(30)]);
+    if(page!=='chat')return;
+    const P=pf.data||[],on=p=>p.en_ligne&&p.last_seen&&Date.now()-new Date(p.last_seen)<180000;
+    C.textContent=P.filter(on).length+'/'+P.length;N.textContent=P.length+' membres';
+    L.innerHTML=P.sort((a,b)=>on(b)-on(a)).slice(0,6).map(p=>'<div class="it"><i class="'+(on(p)?'v':'')+'"></i>'+esc(p.pseudo||'?')+'<small>'+(on(p)?'En ligne':'Hors ligne')+'</small></div>').join('');
+    M.innerHTML=(ms.data||[]).reverse().map(x=>'<div class="ms"><b>'+esc(x.pseudo||'?')+'</b> <small>'+new Date(x.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</small><br>'+esc(x.contenu)+'</div>').join('')||'<small>Aucun message. Écris le premier !</small>';
+    M.scrollTop=M.scrollHeight;};
+  CR();timers.push(setInterval(CR,4000));
+}
+async function envoyer(){const i=$('msg'),t=i.value.trim();if(!t)return;i.value='';
+  const {error}=await sb.from('messages').insert({user_id:U.id,pseudo:nomU(),contenu:t});
+  if(error)toast('Erreur : '+error.message,1);else{son([880,1320]);CR&&CR();}}
+
+// ---- Concours ----
+async function concoursPg(){
+  const top=async(c,n)=>(await sb.from('profiles').select('pseudo,'+c).order(c,{ascending:false,nullsFirst:false}).limit(n)).data||[];
+  const [w,mo,y]=await Promise.all([top('points_semaine',3),top('points_mois',3),top('points',1)]);
+  if(page!=='concours')return;
+  const hd=(r,c)=>r?'<span>'+esc(r.pseudo||'—')+'<br><small>'+(r[c]||0)+' pts</small></span>':'<span>—</span>';
+  Z(365,1008,505,1058,'patch',hd(w[0],'points_semaine'));
+  Z(652,1000,790,1056,'patch',hd(mo[0],'points_mois'));
+  Z(1033,1018,1190,1092,'patch',hd(y[0],'points'));
+  const row=(r,c,i)=>i+'. '+(r?esc(r.pseudo||'—')+' <b>'+(r[c]||0)+'</b>':'—');
+  [[298,500,w,'points_semaine'],[565,840,mo,'points_mois']].forEach(([x1,x2,L,c])=>{
+    Z(x1,1228,x2,1256,'patch row',row(L[1],c,2));Z(x1,1278,x2,1304,'patch row',row(L[2],c,3));});
+  Z(885,1196,1328,1465,'',null,()=>toast("Grande cérémonie de remise des prix le 1er décembre 🏆"));
+}
+
+// ---- Profil ----
+async function profilPg(){
+  Z(200,1135,474,1180,'champ nom','<input id="ps" maxlength="20" value="'+esc(nomU())+'">');
+  $('ps').onchange=async e=>{const v=e.target.value.trim();if(v.length<3)return toast('Pseudo : 3 caractères minimum',1);
+    const {error}=await sb.from('profiles').update({pseudo:v}).eq('id',U.id);if(error)return toast(error.message,1);PR.pseudo=v;sonValide();toast('Pseudo enregistré ✨');};
+  Z(380,1213,496,1253,'patch',new Date(U.created_at).toLocaleDateString('fr-FR'));
+  const A=Z(380,1276,496,1316,'patch','…'),D=Z(402,1340,496,1380,'patch','…'),V=Z(430,1402,496,1444,'patch','…');
+  Z(258,955,415,1115,'',null,soon);Z(1186,986,1432,1135,'',null,soon);Z(1133,1248,1432,1430,'',null,soon);
+  const [c,l,n]=await Promise.all([
+    sb.from('profiles').select('id',{count:'exact',head:true}),
+    sb.from('pronostics').select('created_at').eq('user_id',U.id).order('created_at',{ascending:false}).limit(1),
+    sb.from('pronostics').select('id',{count:'exact',head:true}).eq('user_id',U.id)]);
+  if(page!=='profil')return;
+  A.textContent=Math.max(0,(c.count||1)-1);
+  D.textContent=l.data&&l.data[0]?new Date(l.data[0].created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'numeric'}):'—';
+  V.textContent='Niv. '+(1+Math.floor((n.count||0)/5));
+}
+
+// ---- Étincelles qui scintillent sur toute l'illustration ----
+const ec=$('etincelles'),c2=ec.getContext('2d');let E=[];
+function tailleEc(){ec.width=innerWidth;ec.height=innerHeight;
+  E=Array.from({length:Math.round(innerWidth*innerHeight/16000)},()=>({x:Math.random()*ec.width,y:Math.random()*ec.height,r:Math.random()*4+2,p:Math.random()*6.28,v:Math.random()*0.03+0.01,c:['255,255,255','255,211,77','41,216,255','255,61,242'][Math.floor(Math.random()*4)]}));}
+tailleEc();addEventListener('resize',tailleEc);
+function scintille(){requestAnimationFrame(scintille);c2.clearRect(0,0,ec.width,ec.height);
+  E.forEach(s=>{s.p+=s.v;const a=Math.max(0,Math.sin(s.p));if(a<0.02)return;
+    c2.globalAlpha=a;c2.fillStyle='rgb('+s.c+')';const r=s.r*a,x=s.x,y=s.y;
+    c2.beginPath();c2.moveTo(x,y-r*2);c2.lineTo(x+r*.4,y-r*.4);c2.lineTo(x+r*2,y);c2.lineTo(x+r*.4,y+r*.4);c2.lineTo(x,y+r*2);c2.lineTo(x-r*.4,y+r*.4);c2.lineTo(x-r*2,y);c2.lineTo(x-r*.4,y-r*.4);c2.closePath();c2.fill();});}
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)scintille();
+
+// ---- Démarrage ----
+sb.auth.getSession().then(async({data})=>{if(data.session){const ok=await entrer();if(!ok)go('accueil');}else go('accueil');});
 </script>
 </body>
 </html>
