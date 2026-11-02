@@ -1,0 +1,14 @@
+{
+  "name": "Pronostics — Le club privé",
+  "short_name": "Pronostics",
+  "description": "Club privé de pronostics sportifs entre amis, sans mise d'argent.",
+  "lang": "fr-FR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080e1b",
+  "theme_color": "#0b1220",
+  "icons": [
+    {"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
