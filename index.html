@@ -83,7 +83,7 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#03021
 body.port #mob{display:block}
 body.port #vue,body.port #mbtn,body.port #menu{display:none!important}
 body.port #flou{filter:blur(5px) brightness(.42)}
-#mobc{height:100%;overflow-y:auto;padding:calc(10px + env(safe-area-inset-top)) 14px 90px;-webkit-overflow-scrolling:touch}
+#mobc{max-width:760px;margin:0 auto;height:100%;overflow-y:auto;padding:calc(10px + env(safe-area-inset-top)) 14px 90px;-webkit-overflow-scrolling:touch}
 .hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .hd img{width:46px;height:46px;border-radius:50%;box-shadow:0 0 14px #ff3df2,0 0 28px #29d8ff88}
 .hd h1{font-size:1.15rem;font-style:italic;background:linear-gradient(90deg,#29d8ff,#ff3df2,#ffd34d);-webkit-background-clip:text;color:transparent}
@@ -129,6 +129,8 @@ body.port.in #tabs{display:flex}
 .pk{display:flex;align-items:center;gap:10px;cursor:pointer}
 .bdg{display:inline-block;padding:3px 9px;border-radius:10px;font-size:.78rem;font-weight:800;background:#12307a}
 .bdg.gagne{background:#0a7a4b}.bdg.perdu{background:#a02a45}
+.vt.on{background:#ffd34d!important;color:#321!important}
+.mob .vt{padding:8px 16px;font-size:1rem}
 .cmt{background:rgba(30,60,100,.5);border-radius:12px;padding:8px 10px;margin:6px 0;font-size:.88rem}
 .cmt .lg button{padding:4px 8px;font-size:.72rem}
 @media(prefers-reduced-motion:reduce){#stage,#stage:after{animation:none}}
@@ -441,7 +443,7 @@ function scintille(){requestAnimationFrame(scintille);c2.clearRect(0,0,ec.width,
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)scintille();
 
 // ---- Version verticale : même univers, tout l'écran, sans glisser ----
-const PORT=()=>matchMedia('(orientation:portrait)').matches;
+const PORT=()=>true; // une seule version (celle de l'écran vertical), même téléphone à l'horizontale
 const IC={Foot:'⚽',Basket:'🏀',Tennis:'🎾',Hockey:'🏒',Rugby:'🏉',Volley:'🏐',Autre:'🎯'};
 const lbl=v=>({'1':'Dom.','N':'Nul','2':'Ext.'}[v]||'—');
 const rg=n=>n?n+(n==1?'er':'e'):'';
@@ -471,7 +473,8 @@ async function mob(p){
   const c=$('mobc');c.scrollTop=0;
   const H=t=>'<div class="hd"><img src="icon-192.png" alt=""><h1>Le Labo du Clos</h1><small class="hclk"></small></div>'+(t?'<h2 class="ti">'+t+'</h2>':'');
   const W={accueil:mAccueil,jour:mJour,match:mMatch,nouveau:mNouveau,communaute:mCom,avatar:mAvatar,chat:mChat,concours:mConc,profil:mProfil};
-  await W[p](c,H);tick();
+  try{await W[p](c,H);}catch(e){toast('Erreur de la page : '+(e&&e.message||e),1);}
+  tick();
 }
 function mAccueil(c,H){
   c.innerHTML=H()+'<div class="cd"><h3>💎 '+(mode==='ins'?'Inscription':'Connexion')+'</h3>'+
@@ -584,6 +587,8 @@ async function mCom(c,H){
   const L0=data||[],ids=L0.map(x=>String(x.pronostic_id)),nb={};
   if(ids.length){const {data:cm}=await sb.from('commentaires').select('pronostic_id').in('pronostic_id',ids);
     (cm||[]).forEach(x=>nb[x.pronostic_id]=(nb[x.pronostic_id]||0)+1);}
+  const VT={};
+  if(ids.length){const {data:vv}=await sb.from('votes_resume').select('*').in('pronostic_id',ids);(vv||[]).forEach(x=>VT[x.pronostic_id]=x);}
   if(page!=='communaute')return;
   const B={attente:'⏳ En attente',gagne:'✅ Gagnant',perdu:'❌ Perdant'};
   const ligues=['Toutes'].concat([...new Set(L0.map(x=>x.ligue).filter(Boolean))]);
@@ -598,8 +603,16 @@ async function mCom(c,H){
    (L.map(p=>{const r=resPr(p),ch={'1':'Victoire '+p.equipe1,'N':'Match nul','2':'Victoire '+p.equipe2}[p.choix]||'—';
      return '<div class="cd"><div class="pk" onclick="profPub(\''+esc(p.user_id)+'\')">'+av(p.avatar,40)+'<b>'+esc(p.pseudo||'?')+'</b><small style="margin-left:auto">🕒 '+dh(p.created_at)+'</small></div>'+
       '<div style="margin-top:8px"><small>'+(IC[p.sport]||'🎯')+' '+esc(p.sport||'')+(p.ligue?' · '+esc(p.ligue):'')+' · '+dh(p.date_match)+'</small><br><b>'+esc(p.equipe1)+' – '+esc(p.equipe2)+'</b><br>Choix : <b>'+esc(ch)+'</b>'+(p.score_prevu?' · Score prévu <b>'+esc(p.score_prevu)+'</b>':'')+(p.buteurs?' · Buteur <b>'+esc(p.buteurs)+'</b>':'')+'</div>'+
+      '<div class="lg" style="justify-content:flex-start;margin-top:8px"><small>Ce pronostic est-il bon ?</small><button class="vt'+((VT[String(p.pronostic_id)]||{}).mon_vote===1?' on':'')+'" onclick="voter(\''+esc(p.pronostic_id)+'\',1)"'+(p.user_id===U.id?' disabled':'')+'>👍 '+((VT[String(p.pronostic_id)]||{}).pouces_haut||0)+'</button><button class="vt'+((VT[String(p.pronostic_id)]||{}).mon_vote===-1?' on':'')+'" onclick="voter(\''+esc(p.pronostic_id)+'\',-1)"'+(p.user_id===U.id?' disabled':'')+'>👎 '+((VT[String(p.pronostic_id)]||{}).pouces_bas||0)+'</button>'+(p.user_id===U.id?'<small>C\'est le tien</small>':'')+'</div>'+
       '<div class="lg" style="margin-top:8px"><span class="bdg '+r+'">'+B[r]+(r!=='attente'?' · '+p.score_dom+'-'+p.score_ext:'')+'</span><button onclick="comModal(\''+esc(p.pronostic_id)+'\')">💬 Commentaires ('+(nb[String(p.pronostic_id)]||0)+')</button></div></div>';}).join('')||'<div class="cd"><small>Aucun pronostic à afficher pour le moment.</small></div>');
 }
+async function voter(pid,v){
+  const k=String(pid);
+  const {data:ex}=await sb.from('votes_pronos').select('valeur').eq('pronostic_id',k).eq('user_id',U.id).maybeSingle();
+  let error;
+  if(ex&&ex.valeur===v)({error}=await sb.from('votes_pronos').delete().eq('pronostic_id',k).eq('user_id',U.id));
+  else({error}=await sb.from('votes_pronos').upsert({pronostic_id:k,user_id:U.id,valeur:v},{onConflict:'pronostic_id,user_id'}));
+  if(error)return toast(error.message,1);son([880,1320]);go('communaute');}
 async function profPub(id){
   const [{data:pr},{data:L}]=await Promise.all([sb.from('profiles').select('pseudo,avatar,points,points_semaine,points_mois').eq('id',id).maybeSingle(),
     sb.from('pronostics_publics').select('choix,termine,score_dom,score_ext').eq('user_id',id)]);
@@ -632,6 +645,7 @@ async function comDel(cid,pid){if(!confirm('Supprimer ce commentaire ?'))return;
   const {error}=await sb.from('commentaires').delete().eq('id',cid);
   if(error)return toast('Erreur : '+error.message,1);toast('Commentaire supprimé');pid?comModal(pid):adminModal();}
 
+addEventListener('unhandledrejection',e=>{toast('Erreur : '+((e.reason&&e.reason.message)||e.reason),1);});
 matchMedia('(orientation:portrait)').addEventListener('change',()=>go(page||'accueil'));
 
 // ---- Plein écran : sans barre du navigateur ----
