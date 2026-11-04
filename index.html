@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Le Labo du Clos</title>
+<title>Le Labo du Clos — Mon Bichon</title>
 <meta name="theme-color" content="#030211">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,7 +15,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#030211;font-family:system-ui,sans-serif;color:#fff}
-#flou{position:fixed;inset:-40px;background:#030211 center/cover;filter:blur(28px) brightness(.5)}
+#flou{position:fixed;inset:-40px;background:#030211 center/cover;filter:blur(28px) brightness(.5);transition:background-image .25s ease,filter .25s ease}
+#flou:after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,2,17,.18),rgba(3,2,17,.62));pointer-events:none}
 #vue{position:fixed;inset:0;display:flex;overflow:hidden;scrollbar-width:none}
 #vue::-webkit-scrollbar{display:none}
 #stage{--R:1.8331;position:relative;flex:none;margin:auto;width:min(100vw,calc(100vh*var(--R)));width:min(100vw,calc(100dvh*var(--R)));aspect-ratio:var(--R);container-type:inline-size;animation:respire 6s ease-in-out infinite}
@@ -450,7 +451,7 @@ async function savePseudo(v){v=v.trim();if(v.length<3)return toast('Pseudo : 3 c
   const {error}=await sb.from('profiles').update({pseudo:v}).eq('id',U.id);if(error)return toast(error.message,1);PR.pseudo=v;sonValide();toast('Pseudo enregistré ✨');}
 async function mob(p){
   const art={accueil:'accueil',jour:'match',match:'match',nouveau:'match',chat:'chat',concours:'concours',profil:'profil'}[p];
-  $('flou').style.backgroundImage='url('+art+'.webp)';$('menu').style.display='none';
+  $('flou').style.backgroundImage='url(bg-'+art+'.webp)';$('menu').style.display='none';
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===p||(p==='match'&&b.dataset.t==='jour')));
   const c=$('mobc');c.scrollTop=0;
   const H=t=>'<div class="hd"><img src="icon-192.png" alt=""><h1>Le Labo du Clos</h1><small class="hclk"></small></div>'+(t?'<h2 class="ti">'+t+'</h2>':'');
