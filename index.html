@@ -119,9 +119,18 @@ body.port #flou{filter:blur(5px) brightness(.42)}
 .bar{position:sticky;bottom:0;background:rgba(5,8,28,.9);padding:6px;border-radius:14px}
 #tabs{display:none;position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,8,28,.94);border-top:1px solid #2aa6d8;padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
 body.port.in #tabs{display:flex}
-#tabs button{background:none;border:0;color:#cfe;font-size:1.35rem;display:flex;flex-direction:column;align-items:center;padding:4px 10px;border-radius:10px;cursor:pointer}
+#tabs button{background:none;border:0;color:#cfe;font-size:1.2rem;display:flex;flex-direction:column;align-items:center;padding:4px 5px;border-radius:10px;cursor:pointer}
 #tabs small{font-size:.6rem}
 #tabs button.on{color:#ffd34d;text-shadow:0 0 10px #ffd34d}
+.avt{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle,#2a1b6e,#07123a);border:2px solid #ffd34d;box-shadow:0 0 10px #ffd34d88;flex:none;vertical-align:middle;line-height:1}
+.avg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.avc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px;border:1.5px solid #3fc8ff55;border-radius:14px;cursor:pointer}
+.avc.sel{border-color:#ffd34d;box-shadow:0 0 12px #ffd34d}
+.pk{display:flex;align-items:center;gap:10px;cursor:pointer}
+.bdg{display:inline-block;padding:3px 9px;border-radius:10px;font-size:.78rem;font-weight:800;background:#12307a}
+.bdg.gagne{background:#0a7a4b}.bdg.perdu{background:#a02a45}
+.cmt{background:rgba(30,60,100,.5);border-radius:12px;padding:8px 10px;margin:6px 0;font-size:.88rem}
+.cmt .lg button{padding:4px 8px;font-size:.72rem}
 @media(prefers-reduced-motion:reduce){#stage,#stage:after{animation:none}}
 </style>
 </head>
@@ -132,6 +141,7 @@ body.port.in #tabs{display:flex}
 <div id="mob"><div id="mobc" class="mob"></div></div>
 <div id="tabs">
   <button data-t="jour" onclick="go('jour')">📅<small>Matchs</small></button>
+  <button data-t="communaute" onclick="go('communaute')">👥<small>Membres</small></button>
   <button data-t="nouveau" onclick="go('nouveau')">➕<small>Ajouter</small></button>
   <button data-t="chat" onclick="go('chat')">💬<small>Chat</small></button>
   <button data-t="concours" onclick="go('concours')">🏆<small>Concours</small></button>
@@ -196,7 +206,7 @@ function Z(x1,y1,x2,y2,cls,html,fn){const d=document.createElement('div');d.clas
 const PG={accueil:{img:'accueil.webp',fn:accueilPg,fx:.84},match:{img:'match.webp',fn:matchPg,fx:.5,fh:902,oy:697},chat:{img:'chat.webp',fn:chatPg,fx:.6},concours:{img:'concours.webp',fn:concoursPg,fx:.5},profil:{img:'profil.webp',fn:profilPg,fx:.5}};
 function go(p){timers.forEach(clearInterval);timers=[];$('zones').innerHTML='';
   const pt=PORT();document.body.classList.toggle('port',pt);document.body.classList.toggle('in',!!U&&p!=='accueil');
-  if(!pt){if(p==='jour')p='match';if(p==='nouveau'){p='match';creation=true;}}
+  if(!pt){if(p==='communaute'||p==='avatar'){toast('Passe en mode vertical pour la Communauté et les avatars ✨');return;}if(p==='jour')p='match';if(p==='nouveau'){p='match';creation=true;}}
   page=p;if(pt)return mob(p);
   FH=PG[p].fh||875;OY=PG[p].oy||710;$('stage').style.setProperty('--R',(FW/FH).toFixed(4));
   $('art').src=PG[p].img;$('flou').style.backgroundImage='url('+PG[p].img+')';
@@ -260,7 +270,7 @@ async function entrer(){
   if(p){PR=p;await sb.from('profiles').update({en_ligne:true,last_seen:now}).eq('id',user.id);}
   else{PR={pseudo:(user.user_metadata&&user.user_metadata.pseudo)||user.email.split('@')[0]};await sb.from('profiles').insert({id:user.id,pseudo:PR.pseudo,en_ligne:true,last_seen:now});}
   clearInterval(hb);hb=setInterval(()=>sb.from('profiles').update({en_ligne:true,last_seen:new Date().toISOString()}).eq('id',U.id),60000);
-  go('jour');astuce();return true;
+  go(PORT()&&!PR.avatar?'avatar':'jour');astuce();return true;
 }
 async function sortir(){if(U)await sb.from('profiles').update({en_ligne:false}).eq('id',U.id);await sb.auth.signOut();U=null;PR={};clearInterval(hb);go('accueil');}
 addEventListener('pagehide',()=>{if(U)sb.from('profiles').update({en_ligne:false}).eq('id',U.id);});
@@ -345,9 +355,12 @@ function ouvrir(i){mi=i;curId=MS[i].id;creation=false;$('modal').style.display='
 async function adminModal(){
   if(!isAdmin())return;
   const {data:mb}=await sb.from('profiles').select('id,pseudo,role').order('pseudo');
+  const {data:sg}=await sb.from('signalements').select('commentaire_id,commentaires(contenu,pseudo,masque)');
+  const sgm={};(sg||[]).forEach(x=>{(sgm[x.commentaire_id]=sgm[x.commentaire_id]||{n:0,c:x.commentaires}).n++;});
+  const sec='<h3>Commentaires signalés</h3>'+(Object.keys(sgm).map(id=>{const q=sgm[id];return '<div class="rw"><small>'+esc(q.c&&q.c.pseudo)+' · '+q.n+' signalement(s)'+(q.c&&q.c.masque?' · masqué':'')+'</small><br>'+esc(q.c&&q.c.contenu)+'<div class="lg"><button onclick="comMask('+id+',null)">Masquer</button><button class="rouge" onclick="comDel('+id+',null)">Supprimer</button></div></div>';}).join('')||'<small>Aucun signalement.</small>');
   const m=MS[mi];
   modal('<h3>Administration</h3>'+(m?'<p><b>'+esc(m.equipe1)+' – '+esc(m.equipe2)+'</b>'+(m.termine?' (terminé : '+m.score_dom+'-'+m.score_ext+')':'')+'</p><div class="lg"><input id="rd" inputmode="numeric" placeholder="Buts domicile"><input id="re" inputmode="numeric" placeholder="Buts extérieur"></div><input id="rb" placeholder="Buteurs (séparés par des virgules)"><button class="or" onclick="resultat()">Valider le résultat</button><button class="rouge" onclick="supprimer()">Supprimer ce match</button>':'<p>Aucun match.</p>')+
-   '<h3>Membres</h3>'+(mb||[]).map(x=>'<div class="lg"><span>'+esc(x.pseudo||'?')+(x.role==='admin'?' ⭐':'')+'</span><button onclick="roleDe(\''+x.id+'\',\''+(x.role==='admin'?'membre':'admin')+'\')">'+(x.role==='admin'?'Retirer admin':'Nommer admin')+'</button></div>').join(''));
+   '<h3>Membres</h3>'+(mb||[]).map(x=>'<div class="lg"><span>'+esc(x.pseudo||'?')+(x.role==='admin'?' ⭐':'')+'</span><button onclick="roleDe(\''+x.id+'\',\''+(x.role==='admin'?'membre':'admin')+'\')">'+(x.role==='admin'?'Retirer admin':'Nommer admin')+'</button></div>').join('')+sec);
 }
 async function resultat(){const m=MS[mi],a=parseInt($('rd').value),b=parseInt($('re').value);
   if(isNaN(a)||isNaN(b))return toast('Saisis les deux scores',1);
@@ -435,12 +448,15 @@ const rg=n=>n?n+(n==1?'er':'e'):'';
 const rk=(m,s)=>{const r=m['rang_'+s],f=m['forme_'+s];return (r||f)?'<small>'+(r?'Classement : '+rg(r):'')+(f?' · '+esc(f):'')+'</small>':'';};
 const fdate=m=>m.date_match?new Date(m.date_match).toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'Date à venir';
 const fini=m=>m.termine||(m.date_match&&new Date(m.date_match)<Date.now());
-const topN=async(c,n)=>(await sb.from('profiles').select('pseudo,'+c).order(c,{ascending:false,nullsFirst:false}).limit(n)).data||[];
+const topN=async(c,n)=>(await sb.from('profiles').select('pseudo,avatar,'+c).order(c,{ascending:false,nullsFirst:false}).limit(n)).data||[];
 let T='Tous',ST='avenir';
-const labH=r=>'<div class="lb"><b>'+(r.type==='audacieux'?'🔥 Audacieux':'🛡️ Prudent')+'</b> · confiance '+(r.confiance||'?')+' %<br>Score <b>'+esc(r.score||'—')+'</b> · Buteur <b>'+esc(r.buteur||'—')+'</b><br>Mi-temps <b>'+lbl(r.mi_temps)+'</b> · Fin de match <b>'+lbl(r.fin)+'</b><details><summary>Pourquoi ?</summary><div class="why">'+esc(r.arguments||'Analyse bientôt disponible').replace(/\n/g,'<br>')+'</div></details></div>';
-async function laboH(id){const {data}=await sb.from('labo_pronos').select('*').eq('match_id',id).order('type',{ascending:false});
-  return (data&&data.length)?data.map(labH).join(''):"<small>Le Labo n'a pas encore pronostiqué ce match.</small>";}
-async function laboModal(m){modal('<h3>🤖 Pronostic du Labo</h3><b>'+esc(m.equipe1)+' – '+esc(m.equipe2)+'</b>'+await laboH(m.id)+'<small>Estimation indicative, pas un conseil de paris.</small>');}
+const win=(v,m)=>v==='N'?'Match nul':v==='1'?(m?m.equipe1:'Dom.'):v==='2'?(m?m.equipe2:'Ext.'):'—';
+const lbs=(x,m)=>x.score||(x.fin?win(x.fin,m):'');
+const labH=(r,m)=>{const a=[];if(r.fin)a.push('Vainqueur <b>'+esc(win(r.fin,m))+'</b>');if(r.score)a.push('Score <b>'+esc(r.score)+'</b>');if(r.buteur)a.push('Buteur <b>'+esc(r.buteur)+'</b>');if(r.mi_temps)a.push('Mi-temps <b>'+esc(win(r.mi_temps,m))+'</b>');
+  return '<div class="lb"><b>'+(r.type==='audacieux'?'🔥 Audacieux':'🛡️ Prudent')+'</b> · confiance '+(r.confiance||'?')+' %<br>'+(a.join(' · ')||'Pas de détail disponible')+'<details><summary>Pourquoi ?</summary><div class="why">'+esc(r.arguments||'Analyse bientôt disponible').replace(/\n/g,'<br>')+'</div></details></div>';};
+async function laboH(id,m){const {data}=await sb.from('labo_pronos').select('*').eq('match_id',id).order('type',{ascending:false});
+  return (data&&data.length)?data.map(r=>labH(r,m)).join(''):"<small>Le Labo n'a pas encore pronostiqué ce match.</small>";}
+async function laboModal(m){modal('<h3>🤖 Pronostic du Labo</h3><b>'+esc(m.equipe1)+' – '+esc(m.equipe2)+'</b>'+await laboH(m.id,m)+'<small>Estimation indicative, pas un conseil de paris.</small>');}
 function bascule(){mode=mode==='ins'?'con':'ins';go('accueil');}
 function meilleur(B){const mois=new Date().toLocaleDateString('fr-FR',{month:'long',year:'numeric'}).toUpperCase();
   topN('points_mois',1).then(L=>{const r=L[0];if(B&&B.isConnected)B.innerHTML='<small>💎 MEILLEUR PRONOSTIQUEUR · '+mois+'</small><br><b>'+(r?esc(r.pseudo||'—'):'—')+'</b> · '+(r?r.points_mois||0:0)+' points';});}
@@ -449,12 +465,12 @@ function ouvrirM(i){mi=i;curId=MS[i].id;go('match');}
 async function savePseudo(v){v=v.trim();if(v.length<3)return toast('Pseudo : 3 caractères minimum',1);
   const {error}=await sb.from('profiles').update({pseudo:v}).eq('id',U.id);if(error)return toast(error.message,1);PR.pseudo=v;sonValide();toast('Pseudo enregistré ✨');}
 async function mob(p){
-  const art={accueil:'accueil',jour:'match',match:'match',nouveau:'match',chat:'chat',concours:'concours',profil:'profil'}[p];
+  const art={accueil:'accueil',jour:'match',match:'match',nouveau:'match',communaute:'match',avatar:'profil',chat:'chat',concours:'concours',profil:'profil'}[p];
   $('flou').style.backgroundImage='url('+art+'.webp)';$('menu').style.display='none';
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===p||(p==='match'&&b.dataset.t==='jour')));
   const c=$('mobc');c.scrollTop=0;
   const H=t=>'<div class="hd"><img src="icon-192.png" alt=""><h1>Le Labo du Clos</h1><small class="hclk"></small></div>'+(t?'<h2 class="ti">'+t+'</h2>':'');
-  const W={accueil:mAccueil,jour:mJour,match:mMatch,nouveau:mNouveau,chat:mChat,concours:mConc,profil:mProfil};
+  const W={accueil:mAccueil,jour:mJour,match:mMatch,nouveau:mNouveau,communaute:mCom,avatar:mAvatar,chat:mChat,concours:mConc,profil:mProfil};
   await W[p](c,H);tick();
 }
 function mAccueil(c,H){
@@ -470,22 +486,22 @@ function mAccueil(c,H){
 async function mJour(c,H){
   c.innerHTML=H('Matchs du jour')+'<div class="cd"><small>Chargement…</small></div>';
   if(!MS.length)await chargerMS();
-  const [pp,lb]=await Promise.all([sb.from('pronostics').select('match_id').eq('user_id',U.id),sb.from('labo_pronos').select('match_id,score').eq('type','prudent')]);
+  const [pp,lb]=await Promise.all([sb.from('pronostics').select('match_id').eq('user_id',U.id),sb.from('labo_pronos').select('match_id,score,fin').eq('type','prudent')]);
   if(page!=='jour')return;
-  const mes=new Set((pp.data||[]).map(x=>String(x.match_id))),lab={};(lb.data||[]).forEach(x=>lab[x.match_id]=x.score);
+  const mes=new Set((pp.data||[]).map(x=>String(x.match_id))),lab={};(lb.data||[]).forEach(x=>lab[x.match_id]=x);
   let L=MS.map((m,i)=>({m,i})).filter(x=>(T==='Tous'||x.m.sport===T)&&(ST==='tous'||(ST==='avenir'?!fini(x.m):fini(x.m))));
   if(ST!=='avenir')L.reverse();
   const cb=(t,on,f)=>'<button class="'+(on?'on':'')+'" onclick="'+f+'">'+t+'</button>';
   c.innerHTML=H('Matchs du jour')+
    '<div class="chips">'+[['avenir','À venir'],['passes','Passés'],['tous','Tous']].map(([k,t])=>cb(t,ST===k,"ST='"+k+"';go('jour')")).join('')+'</div>'+
    '<div class="chips">'+['Tous'].concat(SPORTS).map(k=>cb((IC[k]||'📋')+' '+k,T===k,"T='"+k+"';go('jour')")).join('')+'</div>'+
-   (L.map(({m,i})=>'<div class="cd mt" onclick="ouvrirM('+i+')"><div class="lg"><small>🕒 '+fdate(m)+'</small><small>'+(IC[m.sport]||'🎯')+' '+esc(m.sport||'')+'</small></div><div class="tm"><div><b>'+esc(m.equipe1)+'</b>'+rk(m,'dom')+'</div><span>VS</span><div><b>'+esc(m.equipe2)+'</b>'+rk(m,'ext')+'</div></div><div class="lg"><small>'+(lab[m.id]?'🤖 Labo : '+esc(lab[m.id]):'')+'</small><b>'+(m.termine?m.score_dom+'-'+m.score_ext:(mes.has(String(m.id))?'✓ pronostiqué':''))+'</b></div></div>').join('')||"<div class=\"cd\"><small>Aucun match ici pour l'instant. Appuie sur ➕ pour en ajouter un.</small></div>");
+   (L.map(({m,i})=>'<div class="cd mt" onclick="ouvrirM('+i+')"><div class="lg"><small>🕒 '+fdate(m)+'</small><small>'+(IC[m.sport]||'🎯')+' '+esc(m.sport||'')+'</small></div><div class="tm"><div><b>'+esc(m.equipe1)+'</b>'+rk(m,'dom')+'</div><span>VS</span><div><b>'+esc(m.equipe2)+'</b>'+rk(m,'ext')+'</div></div><div class="lg"><small>'+(lab[m.id]&&lbs(lab[m.id],m)?'🤖 Labo : '+esc(lbs(lab[m.id],m)):'')+'</small><b>'+(m.termine?m.score_dom+'-'+m.score_ext:(mes.has(String(m.id))?'✓ pronostiqué':''))+'</b></div></div>').join('')||"<div class=\"cd\"><small>Aucun match ici pour l'instant. Appuie sur ➕ pour en ajouter un.</small></div>");
 }
 async function mMatch(c,H){
   if(!MS.length)await chargerMS();
   const i=curId?MS.findIndex(x=>x.id===curId):-1;if(i<0)return go('jour');
   mi=i;const m=MS[i];
-  const [{data:pr},lh]=await Promise.all([sb.from('pronostics').select('*').eq('match_id',String(m.id)).eq('user_id',U.id).maybeSingle(),laboH(m.id)]);
+  const [{data:pr},lh]=await Promise.all([sb.from('pronostics').select('*').eq('match_id',String(m.id)).eq('user_id',U.id).maybeSingle(),laboH(m.id,m)]);
   if(page!=='match')return;
   ch=pr?pr.choix:null;const sc=pr&&pr.score_prevu?pr.score_prevu.split('-'):['',''],lock=fini(m);
   c.innerHTML=H()+'<button class="bg" onclick="go(\'jour\')">◀ Tous les matchs</button>'+
@@ -507,11 +523,11 @@ function mChat(c,H){
   c.innerHTML=H('Salon de discussion')+'<div class="cd"><small id="on">…</small></div><div class="cd" id="msgs" style="height:44vh;overflow:auto"></div><div class="lg bar"><input id="msg" placeholder="Écrire un message…" maxlength="300"><button class="bo" onclick="envoyer()">➤</button></div>';
   $('msg').onkeydown=e=>{if(e.key==='Enter')envoyer();};
   CR=async()=>{
-    const [pf,ms]=await Promise.all([sb.from('profiles').select('pseudo,en_ligne,last_seen'),sb.from('messages').select('*').order('created_at',{ascending:false}).limit(30)]);
+    const [pf,ms]=await Promise.all([sb.from('profiles').select('id,pseudo,avatar,en_ligne,last_seen'),sb.from('messages').select('*').order('created_at',{ascending:false}).limit(30)]);
     if(page!=='chat')return;
-    const P=pf.data||[],on=p=>p.en_ligne&&p.last_seen&&Date.now()-new Date(p.last_seen)<180000,O=P.filter(on);
+    const P=pf.data||[],on=p=>p.en_ligne&&p.last_seen&&Date.now()-new Date(p.last_seen)<180000,O=P.filter(on),AVM={};P.forEach(p=>AVM[p.id]=p.avatar);
     $('on').innerHTML='<b>'+O.length+'/'+P.length+' en ligne</b> · '+(O.map(p=>'🟢 '+esc(p.pseudo||'?')).join(' · ')||'personne');
-    const M=$('msgs');M.innerHTML=(ms.data||[]).reverse().map(x=>'<div class="ms"><b>'+esc(x.pseudo||'?')+'</b> <small>'+new Date(x.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</small><br>'+esc(x.contenu)+'</div>').join('')||'<small>Aucun message. Écris le premier !</small>';
+    const M=$('msgs');M.innerHTML=(ms.data||[]).reverse().map(x=>'<div class="ms">'+av(AVM[x.user_id],24)+' <b>'+esc(x.pseudo||'?')+'</b> <small>'+new Date(x.created_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+'</small><br>'+esc(x.contenu)+'</div>').join('')||'<small>Aucun message. Écris le premier !</small>';
     M.scrollTop=M.scrollHeight;};
   CR();timers.push(setInterval(CR,4000));
 }
@@ -520,7 +536,7 @@ async function mConc(c,H){
   const [w,mo,y,lb]=await Promise.all([topN('points_semaine',3),topN('points_mois',3),topN('points',3),sb.from('labo_pronos').select('type,points')]);
   if(page!=='concours')return;
   const bot={};(lb.data||[]).forEach(x=>bot[x.type]=(bot[x.type]||0)+(x.points||0));
-  const lst=(L,k)=>L.map((r,i)=>'<div class="lg"><span>'+['🥇','🥈','🥉'][i]+' '+esc(r.pseudo||'—')+'</span><b>'+(r[k]||0)+' pts</b></div>').join('')||'<small>—</small>';
+  const lst=(L,k)=>L.map((r,i)=>'<div class="lg"><span>'+['🥇','🥈','🥉'][i]+' '+av(r.avatar,24)+' '+esc(r.pseudo||'—')+'</span><b>'+(r[k]||0)+' pts</b></div>').join('')||'<small>—</small>';
   c.innerHTML=H('Concours du meilleur pronostiqueur')+
    '<div class="cd"><h3>🏅 Meilleur joueur de la semaine</h3>'+lst(w,'points_semaine')+'</div>'+
    '<div class="cd"><h3>🏅 Meilleur joueur du mois</h3>'+lst(mo,'points_mois')+'</div>'+
@@ -534,11 +550,88 @@ async function mProfil(c,H){
     sb.from('pronostics').select('created_at').eq('user_id',U.id).order('created_at',{ascending:false}).limit(1),
     sb.from('pronostics').select('id',{count:'exact',head:true}).eq('user_id',U.id)]);
   if(page!=='profil')return;
-  c.innerHTML=H('Mon compte')+'<div class="cd or"><h3>👤 Pseudo</h3><input id="ps" maxlength="20" value="'+esc(nomU())+'"><button class="bo" style="width:100%" onclick="savePseudo($(\'ps\').value)">Enregistrer</button></div>'+
+  c.innerHTML=H('Mon compte')+'<div class="cd"><div class="lg">'+av(PR.avatar,64)+'<button class="bo" onclick="go(\'avatar\')">🎭 Choisir / changer mon avatar</button></div></div><div class="cd or"><h3>👤 Pseudo</h3><input id="ps" maxlength="20" value="'+esc(nomU())+'"><button class="bo" style="width:100%" onclick="savePseudo($(\'ps\').value)">Enregistrer</button></div>'+
    '<div class="cd"><div class="lg"><span>Membre depuis</span><b>'+new Date(U.created_at).toLocaleDateString('fr-FR')+'</b></div><div class="lg"><span>Points</span><b>'+(PR.points||0)+'</b></div><div class="lg"><span>Amis</span><b>'+Math.max(0,(cc.count||1)-1)+'</b></div><div class="lg"><span>Dernier pronostic</span><b>'+(l.data&&l.data[0]?new Date(l.data[0].created_at).toLocaleDateString('fr-FR'):'—')+'</b></div><div class="lg"><span>Niveau d\'activité</span><b>Niv. '+(1+Math.floor((n.count||0)/5))+'</b></div></div>'+
    (isAdmin()?'<button class="bo" style="width:100%" onclick="adminModal()">⚙️ Administration (membres, résultats)</button>':'')+
    '<button class="bg" onclick="musique()">'+(mu?'♫':'🔇')+' Musique</button><button class="rouge" onclick="sortir()">⏻ Se déconnecter</button>';
 }
+
+// ---- Avatars (provisoires : seront remplacés par les images 3D) ----
+const AV={av1:['👨‍🎤','Rockstar'],av2:['👩‍🎤','Pop star'],av3:['🧑‍🚀','Astro'],av4:['🦸‍♀️','Super héroïne'],av5:['🦸‍♂️','Super héros'],av6:['🕵️‍♀️','Détective'],av7:['🧙‍♂️','Magicien'],av8:['🧛‍♀️','Vampire VIP'],av9:['🥷','Ninja'],av10:['👸','Reine'],av11:['🤴','Roi'],av12:['🤖','Robot']};
+const av=(k,z)=>{z=z||36;return '<span class="avt" style="width:'+z+'px;height:'+z+'px;font-size:'+Math.round(z*.6)+'px">'+((AV[k]&&AV[k][0])||'👤')+'</span>';};
+let avSel=null;
+function mAvatar(c,H){
+  avSel=PR.avatar||null;
+  const grid=Object.keys(AV).map(k=>'<div class="avc'+(k===avSel?' sel':'')+'" data-k="'+k+'" onclick="avPick(\''+k+'\')">'+av(k,56)+'<small>'+AV[k][1]+'</small></div>').join('');
+  c.innerHTML=H('Choisis ton avatar')+'<div class="cd or" style="text-align:center"><div id="avprev">'+av(avSel,110)+'</div><b id="avnom">'+(avSel?AV[avSel][1]:'Aucun choisi')+'</b></div><div class="cd"><div class="avg">'+grid+'</div></div><button class="bt" onclick="avSave()">VALIDER MON AVATAR</button><button class="lk" onclick="go(\'jour\')">Plus tard</button>';
+}
+function avPick(k){avSel=k;document.querySelectorAll('.avc').forEach(e=>e.classList.toggle('sel',e.dataset.k===k));$('avprev').innerHTML=av(k,110);$('avnom').textContent=AV[k][1];son([880,1320]);}
+async function avSave(){if(!avSel)return toast('Choisis un avatar',1);
+  const {error}=await sb.from('profiles').update({avatar:avSel}).eq('id',U.id);
+  if(error)return toast('Erreur : '+error.message,1);PR.avatar=avSel;sonValide();toast('Avatar enregistré ✨');go('jour');}
+
+// ---- Communauté : pronostics de tous les membres ----
+let CF='Tous',CS='tous',CL='Toutes',CO='desc';
+const resPr=p=>{if(!p.termine||p.score_dom==null||p.score_ext==null)return 'attente';
+  const r=p.score_dom>p.score_ext?'1':p.score_dom<p.score_ext?'2':'N';return r===p.choix?'gagne':'perdu';};
+const dh=d=>new Date(d).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+async function mCom(c,H){
+  const T0=H('Pronostics des membres');
+  c.innerHTML=T0+'<div class="cd"><small>Chargement…</small></div>';
+  const {data,error}=await sb.from('pronostics_publics').select('*').order('created_at',{ascending:CO==='asc'}).limit(80);
+  if(page!=='communaute')return;
+  if(error)return void(c.innerHTML=T0+'<div class="cd"><small>Erreur : '+esc(error.message)+'</small></div>');
+  const L0=data||[],ids=L0.map(x=>String(x.pronostic_id)),nb={};
+  if(ids.length){const {data:cm}=await sb.from('commentaires').select('pronostic_id').in('pronostic_id',ids);
+    (cm||[]).forEach(x=>nb[x.pronostic_id]=(nb[x.pronostic_id]||0)+1);}
+  if(page!=='communaute')return;
+  const B={attente:'⏳ En attente',gagne:'✅ Gagnant',perdu:'❌ Perdant'};
+  const ligues=['Toutes'].concat([...new Set(L0.map(x=>x.ligue).filter(Boolean))]);
+  const L=L0.filter(p=>(CF==='Tous'||p.sport===CF)&&(CL==='Toutes'||p.ligue===CL)&&(CS==='tous'||resPr(p)===CS));
+  const cb=(t,on,f)=>'<button class="'+(on?'on':'')+'" onclick="'+f+'">'+t+'</button>';
+  c.innerHTML=T0+
+   '<div class="chips">'+[['tous','Tous'],['gagne','✅ Gagnants'],['perdu','❌ Perdants'],['attente','⏳ En attente']].map(([k,t])=>cb(t,CS===k,"CS='"+k+"';go('communaute')")).join('')+'</div>'+
+   '<div class="chips">'+['Tous'].concat(SPORTS).map(k=>cb((IC[k]||'📋')+' '+k,CF===k,"CF='"+k+"';go('communaute')")).join('')+'</div>'+
+   '<select onchange="CL=this.value;go(\'communaute\')">'+ligues.map(l=>'<option'+(l===CL?' selected':'')+'>'+esc(l)+'</option>').join('')+'</select>'+
+   '<div class="chips">'+cb(CO==='desc'?'↓ Plus récents':'↑ Plus anciens',true,"CO=CO==='desc'?'asc':'desc';go('communaute')")+'</div>'+
+   '<small>Les pronostics des autres membres apparaissent dès que le match commence.</small>'+
+   (L.map(p=>{const r=resPr(p),ch={'1':'Victoire '+p.equipe1,'N':'Match nul','2':'Victoire '+p.equipe2}[p.choix]||'—';
+     return '<div class="cd"><div class="pk" onclick="profPub(\''+esc(p.user_id)+'\')">'+av(p.avatar,40)+'<b>'+esc(p.pseudo||'?')+'</b><small style="margin-left:auto">🕒 '+dh(p.created_at)+'</small></div>'+
+      '<div style="margin-top:8px"><small>'+(IC[p.sport]||'🎯')+' '+esc(p.sport||'')+(p.ligue?' · '+esc(p.ligue):'')+' · '+dh(p.date_match)+'</small><br><b>'+esc(p.equipe1)+' – '+esc(p.equipe2)+'</b><br>Choix : <b>'+esc(ch)+'</b>'+(p.score_prevu?' · Score prévu <b>'+esc(p.score_prevu)+'</b>':'')+(p.buteurs?' · Buteur <b>'+esc(p.buteurs)+'</b>':'')+'</div>'+
+      '<div class="lg" style="margin-top:8px"><span class="bdg '+r+'">'+B[r]+(r!=='attente'?' · '+p.score_dom+'-'+p.score_ext:'')+'</span><button onclick="comModal(\''+esc(p.pronostic_id)+'\')">💬 Commentaires ('+(nb[String(p.pronostic_id)]||0)+')</button></div></div>';}).join('')||'<div class="cd"><small>Aucun pronostic à afficher pour le moment.</small></div>');
+}
+async function profPub(id){
+  const [{data:pr},{data:L}]=await Promise.all([sb.from('profiles').select('pseudo,avatar,points,points_semaine,points_mois').eq('id',id).maybeSingle(),
+    sb.from('pronostics_publics').select('choix,termine,score_dom,score_ext').eq('user_id',id)]);
+  if(!pr)return toast('Profil introuvable',1);
+  const R=(L||[]).map(resPr),g=R.filter(x=>x==='gagne').length,pe=R.filter(x=>x==='perdu').length,at=R.filter(x=>x==='attente').length;
+  modal('<div style="text-align:center">'+av(pr.avatar,90)+'<h3>'+esc(pr.pseudo||'?')+'</h3></div><div class="lg"><span>Points (total)</span><b>'+(pr.points||0)+'</b></div><div class="lg"><span>Points du mois</span><b>'+(pr.points_mois||0)+'</b></div><div class="lg"><span>Points de la semaine</span><b>'+(pr.points_semaine||0)+'</b></div><div class="lg"><span>Pronostics</span><b>✅ '+g+' · ❌ '+pe+' · ⏳ '+at+'</b></div>');
+}
+async function comModal(pid){
+  const {data,error}=await sb.from('commentaires').select('*').eq('pronostic_id',String(pid)).order('created_at',{ascending:true});
+  if(error)return toast('Erreur : '+error.message,1);
+  const L=data||[],ids=[...new Set(L.map(x=>x.user_id))],AVM={};
+  if(ids.length){const {data:pf}=await sb.from('profiles').select('id,avatar').in('id',ids);(pf||[]).forEach(x=>AVM[x.id]=x.avatar);}
+  modal('<h3>💬 Commentaires</h3>'+(L.map(x=>'<div class="cmt">'+av(AVM[x.user_id],24)+' <b>'+esc(x.pseudo||'?')+'</b> <small>'+dh(x.created_at)+(x.masque?' · masqué':'')+'</small><br>'+esc(x.contenu)+
+    '<div class="lg" style="justify-content:flex-start">'+(x.user_id!==U.id?'<button onclick="comSig('+x.id+')">🚩 Signaler</button>':'')+
+    ((x.user_id===U.id||isAdmin())?'<button class="rouge" onclick="comDel('+x.id+',\''+esc(pid)+'\')">Supprimer</button>':'')+
+    (isAdmin()&&!x.masque?'<button onclick="comMask('+x.id+',\''+esc(pid)+'\')">Masquer</button>':'')+'</div></div>').join('')||'<small>Aucun commentaire. Lance la discussion !</small>')+
+    '<input id="ctxt" placeholder="Ton commentaire…" maxlength="300"><button class="or" onclick="comSend(\''+esc(pid)+'\')">Publier</button>');
+}
+async function comSend(pid){const i=$('ctxt'),t=i.value.trim();if(!t)return;
+  const {error}=await sb.from('commentaires').insert({pronostic_id:String(pid),user_id:U.id,pseudo:nomU(),contenu:t});
+  if(error)return toast(error.message,1);son([880,1320]);comModal(pid);}
+async function comSig(cid){
+  const {error}=await sb.from('signalements').insert({commentaire_id:cid,user_id:U.id,motif:'Contenu inapproprié'});
+  if(error)return toast(error.code==='23505'?'Tu as déjà signalé ce commentaire':'Erreur : '+error.message,1);
+  toast('Merci, signalement envoyé 🚩');}
+async function comMask(cid,pid){
+  const {error}=await sb.from('commentaires').update({masque:true}).eq('id',cid);
+  if(error)return toast('Erreur : '+error.message,1);toast('Commentaire masqué');pid?comModal(pid):adminModal();}
+async function comDel(cid,pid){if(!confirm('Supprimer ce commentaire ?'))return;
+  const {error}=await sb.from('commentaires').delete().eq('id',cid);
+  if(error)return toast('Erreur : '+error.message,1);toast('Commentaire supprimé');pid?comModal(pid):adminModal();}
+
 matchMedia('(orientation:portrait)').addEventListener('change',()=>go(page||'accueil'));
 
 // ---- Plein écran : sans barre du navigateur ----
