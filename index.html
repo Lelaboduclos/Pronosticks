@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="splash.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -285,6 +286,18 @@ span.avt{display:inline-flex;align-items:center;justify-content:center;line-heig
 </style>
 </head>
 <body>
+<!-- Écran d'introduction : voir splash.css et splash.js -->
+<div id="splash" role="img" aria-label="Le Labo du Clos">
+  <div class="spl-halo"></div>
+  <div class="spl-sparks"></div>
+  <div class="spl-scene">
+    <div class="spl-float">
+      <div class="spl-logo"><img src="logo-clos.png" alt="Le Labo du Clos"></div>
+    </div>
+  </div>
+  <div class="spl-shadow"></div>
+</div>
+<script src="splash.js"></script>
 <div id="flou"></div>
 <div id="vue"><div id="stage"><img id="art" alt="Le Labo du Clos"><div id="zones"></div></div></div>
 <canvas id="etincelles"></canvas>
