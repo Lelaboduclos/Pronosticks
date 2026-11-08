@@ -193,6 +193,89 @@ body.port #mob{display:block}
 span.avt{display:inline-flex;align-items:center;justify-content:center;line-height:1}
 .si{height:1.25em;width:1.25em;vertical-align:middle;object-fit:contain}
 .bi{height:1.5em;width:auto;vertical-align:middle}
+
+/* ---- animations (désactivées si l'appareil demande moins de mouvement) ---- */
+@media (prefers-reduced-motion:no-preference){
+@keyframes fadeUp{from{opacity:0;transform:translateY(calc(var(--k)*28px)) scale(.95)}to{opacity:1;transform:none}}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.02)}}
+@keyframes pulseGold{0%,100%{box-shadow:0 0 0 rgba(255,211,77,0)}50%{box-shadow:0 0 calc(var(--k)*22px) rgba(255,211,77,.7)}}
+@keyframes ringPulse{0%,100%{box-shadow:0 0 0 calc(var(--k)*5px) #ffd34d,0 0 calc(var(--k)*14px) #ffd34d}50%{box-shadow:0 0 0 calc(var(--k)*5px) #ffd34d,0 0 calc(var(--k)*32px) #fff0b0}}
+@keyframes floatUp{0%{transform:translateY(0) scale(.5);opacity:0}12%{opacity:.95}100%{transform:translateY(calc(var(--k)*-1100px)) scale(1.1);opacity:0}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(var(--k)*-9px))}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes titleGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+@keyframes sparkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+#sg{overflow:hidden}
+#sg .bgi{animation:kb 20s ease-in-out infinite alternate;transform-origin:50% 35%}
+.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.fx i{position:absolute;left:var(--x);bottom:-2%;width:calc(var(--k)*10px);height:calc(var(--k)*10px);border-radius:50%;opacity:0;animation:floatUp var(--t) linear infinite;animation-delay:var(--dl)}
+.fx i.g{background:radial-gradient(circle,#fff,#ffd34d 45%,transparent 72%)}
+.fx i.c{background:radial-gradient(circle,#fff,#29d8ff 45%,transparent 72%)}
+.fx i.p{background:radial-gradient(circle,#fff,#ff3fd0 45%,transparent 72%)}
+#sg .ttl{animation:titleGlow 3.4s ease-in-out infinite}
+#sg .zb.gold{animation:pulseGold 2.6s ease-in-out infinite}
+#sg .zb.med.on{animation:ringPulse 2s ease-in-out infinite}
+#sg .avb.on{animation:ringPulse 2s ease-in-out infinite}
+#sg .rb.sel{animation:pulseGold 2s ease-in-out infinite}
+#sg .podav{animation:bob 3.2s ease-in-out infinite}
+#sg .prev{animation:bob 3.6s ease-in-out infinite}
+#sg .bigav{animation:bob 4s ease-in-out infinite}
+.bar2 button.on{animation:pulseGold 2.4s ease-in-out infinite}
+.bar2 button:active{transform:scale(.9)}
+#sg .zb.pill.on,#sg .zb.big.on{animation:pulseGold 2.4s ease-in-out infinite}
+#sg .pnl .cd{animation:cardIn .45s ease-out backwards}
+#sg .pnl .cd:nth-child(1){animation-delay:0.06s}
+#sg .pnl .cd:nth-child(2){animation-delay:0.12s}
+#sg .pnl .cd:nth-child(3){animation-delay:0.18s}
+#sg .pnl .cd:nth-child(4){animation-delay:0.24s}
+#sg .pnl .cd:nth-child(5){animation-delay:0.30s}
+#sg .pnl .cd:nth-child(6){animation-delay:0.36s}
+#sg .pnl .cd:nth-child(7){animation-delay:0.42s}
+#sg .pnl .cd:nth-child(8){animation-delay:0.48s}
+#sg.enter .e,#sg.enter .bar2{animation:fadeUp .6s cubic-bezier(.2,.8,.2,1) var(--d,0s) backwards}
+#sg.enter .zb.gold{animation:fadeUp .6s cubic-bezier(.2,.8,.2,1) var(--d,0s) backwards,pulseGold 2.6s ease-in-out calc(var(--d,0s) + .7s) infinite}
+#sg.enter .ttl{animation:fadeUp .6s cubic-bezier(.2,.8,.2,1) var(--d,0s) backwards}
+#sg.enter .bar2{animation-delay:.25s}
+#sg.enter .e:nth-child(1){--d:0.00s}
+#sg.enter .e:nth-child(2){--d:0.00s}
+#sg.enter .e:nth-child(3){--d:0.05s}
+#sg.enter .e:nth-child(4){--d:0.10s}
+#sg.enter .e:nth-child(5){--d:0.15s}
+#sg.enter .e:nth-child(6){--d:0.20s}
+#sg.enter .e:nth-child(7){--d:0.25s}
+#sg.enter .e:nth-child(8){--d:0.30s}
+#sg.enter .e:nth-child(9){--d:0.35s}
+#sg.enter .e:nth-child(10){--d:0.40s}
+#sg.enter .e:nth-child(11){--d:0.45s}
+#sg.enter .e:nth-child(12){--d:0.50s}
+#sg.enter .e:nth-child(13){--d:0.55s}
+#sg.enter .e:nth-child(14){--d:0.60s}
+#sg.enter .e:nth-child(15){--d:0.65s}
+#sg.enter .e:nth-child(16){--d:0.70s}
+#sg.enter .e:nth-child(17){--d:0.75s}
+#sg.enter .e:nth-child(18){--d:0.80s}
+#sg.enter .e:nth-child(19){--d:0.85s}
+#sg.enter .e:nth-child(20){--d:0.90s}
+#sg.enter .e:nth-child(21){--d:0.95s}
+#sg.enter .e:nth-child(22){--d:1.00s}
+#sg.enter .e:nth-child(23){--d:1.05s}
+#sg.enter .e:nth-child(24){--d:1.10s}
+#sg.enter .e:nth-child(25){--d:1.15s}
+#sg.enter .e:nth-child(26){--d:1.20s}
+#sg.enter .e:nth-child(27){--d:1.25s}
+#sg.enter .e:nth-child(28){--d:1.30s}
+#sg.enter .e:nth-child(29){--d:1.35s}
+#sg.enter .e:nth-child(30){--d:1.40s}
+#sg.enter .e:nth-child(31){--d:1.45s}
+#sg.enter .e:nth-child(32){--d:1.50s}
+#sg.enter .e:nth-child(33){--d:1.55s}
+#sg.enter .e:nth-child(34){--d:1.60s}
+#sg.enter .e:nth-child(35){--d:1.65s}
+#sg.enter .e:nth-child(36){--d:1.70s}
+#sg.enter .e:nth-child(37){--d:1.75s}
+#sg.enter .e:nth-child(38){--d:1.80s}
+#sg.enter .e:nth-child(39){--d:1.85s}
+}
 @media (orientation:landscape) and (max-height:600px){
  #mobc{overflow-y:auto;align-items:flex-start;-webkit-overflow-scrolling:touch}
  #sg{width:min(100vw,520px)}
@@ -520,7 +603,7 @@ let T='Tous',ST='avenir';
 const win=(v,m)=>v==='N'?'Match nul':v==='1'?(m?m.equipe1:'Dom.'):v==='2'?(m?m.equipe2:'Ext.'):'—';
 const lbs=(x,m)=>x.score||(x.fin?win(x.fin,m):'');
 const labH=(r,m)=>{const a=[];if(r.fin)a.push('Vainqueur <b>'+esc(win(r.fin,m))+'</b>');if(r.score)a.push('Score <b>'+esc(r.score)+'</b>');if(r.buteur)a.push('Buteur <b>'+esc(r.buteur)+'</b>');if(r.mi_temps)a.push('Mi-temps <b>'+esc(win(r.mi_temps,m))+'</b>');
-  return '<div class="lb"><b>'+'<img class="bi" src="'+(r.type==='audacieux'?'bot-audacieux':'bot-prudent')+'.webp" alt=""> '+(r.poids?'Pronostic du Labo':(r.type==='audacieux'?'Audacieux':'Prudent'))+'</b> · confiance '+(r.confiance||'?')+' %<br>'+(a.join(' · ')||'Pas de détail disponible')+(r.poids&&typeof r.poids==='object'?'<br><small>⚖️ Construction du pronostic : '+[['caracteristiques','Caractéristiques'],['audace','Audace'],['surprise','Surprise'],['bookmakers','Cotes des bookmakers']].filter(k=>r.poids[k[0]]!=null).map(k=>k[1]+' '+r.poids[k[0]]+' %').join(' · ')+'<br>Ces pourcentages décrivent comment le Labo construit son choix, ce ne sont pas des chances de gagner.</small>':'')+'<details><summary>Pourquoi ?</summary><div class="why">'+esc(r.arguments||'Analyse bientôt disponible').replace(/\n/g,'<br>')+'</div></details></div>';};
+  return '<div class="lb"><b>'+'<img class="bi" src="'+(r.type==='audacieux'?'bot-audacieux':'bot-prudent')+'.webp" alt=""> '+(r.poids?'Pronostic du Labo':(r.type==='audacieux'?'Audacieux':'Prudent'))+'</b> · confiance '+(r.confiance||'?')+' %<br>'+(a.join(' · ')||'Pas de détail disponible')+(r.poids&&typeof r.poids==='object'?'<br><small>⚖️ Construction du pronostic : '+[['caracteristiques','Caractéristiques'],['audace','Audace'],['surprise','Surprise'],['bookmakers','Cotes des bookmakers']].filter(k=>r.poids[k[0]]!=null).map(k=>k[1]+' '+r.poids[k[0]]+' %').join(' · ')+'<br>Ces pourcentages décrivent comment le Labo construit son choix sur l\'ensemble des matchs, ce ne sont pas des chances de gagner.'+(r.poids.categorie?'<br>🎲 Ce pronostic fait partie des choix « '+({caracteristiques:'caractéristiques',audace:'audace',surprise:'surprise',cotes:'secours (cotes)'}[r.poids.categorie]||r.poids.categorie)+' ».':'')+'</small>':'')+'<details><summary>Pourquoi ?</summary><div class="why">'+esc(r.arguments||'Analyse bientôt disponible').replace(/\n/g,'<br>')+'</div></details></div>';};
 async function laboH(id,m){const {data}=await sb.from('labo_pronos').select('*').eq('match_id',id).order('type',{ascending:false});
   return (data&&data.length)?data.map(r=>labH(r,m)).join(''):"<small>Pas de pronostic du Labo pour ce match : il n'a pas assez de données sportives (classement) pour l'estimer.</small>";}
 async function laboModal(m){modal('<h3>🤖 Pronostic du Labo</h3><b>'+esc(m.equipe1)+' – '+esc(m.equipe2)+'</b>'+await laboH(m.id,m)+'<small>Estimation indicative, pas un conseil de paris.</small>');}
@@ -752,10 +835,12 @@ const TABS=[
  ['profil','Profil',SVG('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.4-6.4 7.5-6.4s7.5 2.4 7.5 6.4"/>')]];
 const barH=p=>{const a=(p==='match')?'jour':(p==='avatar'?'profil':p);
   return '<div class="bar2">'+TABS.map(t=>'<button class="'+(t[0]===a?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[2]+'<span>'+t[1]+'</span></button>').join('')+'</div>';};
-const SG=(p,inner)=>'<div id="sg" class="pg-'+p+'"><img class="bgi" src="'+IMG[p]+'.webp" alt="Le Labo du Clos">'+inner+(p!=='accueil'?barH(p):'')+'</div>';
+const SG=(p,inner)=>'<div id="sg" class="pg-'+p+'"><img class="bgi" src="'+IMG[p]+'.webp" alt="Le Labo du Clos">'+FXH+inner+(p!=='accueil'?barH(p):'')+'</div>';
 function fit(){const s=$('sg');if(!s)return;const k=s.clientWidth/DW;s.style.setProperty('--k',k.toFixed(4));document.documentElement.style.fontSize=Math.min(19,Math.max(13,k*28.8)).toFixed(1)+'px';}
 addEventListener('resize',fit);
-const put=(c,h)=>{c.innerHTML=h;fit();};
+let animFor=null;
+const FXH='<div class="fx">'+[[6,11,0,'g'],[18,14,3,'c'],[30,10,6,'p'],[42,15,1,'g'],[54,12,8,'c'],[66,9,4,'g'],[78,13,2,'p'],[90,11,7,'c'],[12,16,9,'p'],[36,12,5,'g'],[60,14,10,'c'],[84,10,3,'g'],[24,13,11,'p'],[72,15,6,'c']].map(a=>'<i class="'+a[3]+'" style="--x:'+a[0]+'%;--t:'+a[1]+'s;--dl:-'+a[2]+'s"></i>').join('')+'</div>';
+const put=(c,h)=>{c.innerHTML=h;fit();const s=c.querySelector('#sg');if(s&&animFor!==page){animFor=page;s.classList.add('enter');setTimeout(()=>s.classList.remove('enter'),1700);}};
 const TTL=(x,y,w,h,t,fs)=>EL(x,y,w,h,t,'ttl',fs?'font-size:calc(var(--k)*'+fs+'px)':'');
 const PNL=(x,y,w,h,html,bg,id)=>EL(x,y,w,h,html,'pnl mob','background:'+(bg||'rgba(5,12,30,.72)'),id);
 
@@ -933,7 +1018,7 @@ async function mConc(c){
   const [L,lb]=await Promise.all([topN(col,10),sb.from('labo_pronos').select('type,points')]);
   if(page!=='concours')return;
   const bot={};(lb.data||[]).forEach(x=>bot[x.type]=(bot[x.type]||0)+(x.points||0));
-  const pb=(r,i,x,y,w,h,ax,ay)=>r?EL(ax,ay,64,64,av(r.avatar,64),'')+EL(x,y,w,h,'<div class="podb"><img class="mdl" src="'+['medaille-or','medaille-argent','medaille-bronze'][i]+'.webp" alt=""><b>'+esc(r.pseudo||'—')+'</b><small>'+(r[col]||0)+' pts</small></div>',''):'';
+  const pb=(r,i,x,y,w,h,ax,ay)=>r?EL(ax,ay,64,64,av(r.avatar,64),'podav')+EL(x,y,w,h,'<div class="podb"><img class="mdl" src="'+['medaille-or','medaille-argent','medaille-bronze'][i]+'.webp" alt=""><b>'+esc(r.pseudo||'—')+'</b><small>'+(r[col]||0)+' pts</small></div>',''):'';
   const pod=pb(L[1],1,120,640,157,68,166,560)+pb(L[0],0,277,598,156,108,323,520)+pb(L[2],2,433,650,152,60,477,574);
   const rest=L.slice(3).map((r,i)=>'<div class="lg"><span>'+(i+4)+'. '+av(r.avatar,24)+' '+esc(r.pseudo||'—')+'</span><b>'+(r[col]||0)+' pts</b></div>').join('');
   shell(pod,
