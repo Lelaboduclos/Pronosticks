@@ -277,6 +277,12 @@ span.avt{display:inline-flex;align-items:center;justify-content:center;line-heig
 #sg.enter .e:nth-child(38){--d:1.80s}
 #sg.enter .e:nth-child(39){--d:1.85s}
 }
+#sg .warn{background:rgba(255,211,77,.14);border:1px solid #ffd34d88;border-radius:10px;padding:6px 8px;font-size:.78rem;margin-bottom:6px;color:#ffe9a0}
+.pnl table{width:100%;border-collapse:collapse;font-size:.78rem;margin:4px 0}
+.pnl th{color:#9fb3c8;font-weight:600}.pnl td,.pnl th{padding:3px 2px;text-align:center}.pnl td:first-child,.pnl th:first-child{text-align:left}
+.evp{color:#5dffb0;font-weight:800}.evn{color:#ff8fa3}
+.bar{height:10px;border-radius:6px;background:#12307a;overflow:hidden;margin:4px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,#29d8ff,#ffd34d)}
+.pnl label{display:block;margin-top:6px}
 @media (orientation:landscape) and (max-height:600px){
  #mobc{overflow-y:auto;align-items:flex-start;-webkit-overflow-scrolling:touch}
  #sg{width:min(100vw,520px)}
@@ -837,7 +843,7 @@ const DW=704,DH=1520;
 const bx=(x,y,w,h)=>'left:'+(x/DW*100).toFixed(3)+'%;top:'+(y/DH*100).toFixed(3)+'%;width:'+(w/DW*100).toFixed(3)+'%;height:'+(h/DH*100).toFixed(3)+'%';
 const EL=(x,y,w,h,html,cls,st,id)=>'<div'+(id?' id="'+id+'"':'')+' class="e '+(cls||'')+'" style="'+bx(x,y,w,h)+(st?';'+st:'')+'">'+(html==null?'':html)+'</div>';
 const BTN=(x,y,w,h,html,fn,on,cls,dis)=>'<button class="e zb'+(on?' on':'')+(cls?' '+cls:'')+'" style="'+bx(x,y,w,h)+'" onclick="'+fn+'"'+(dis?' disabled':'')+'>'+html+'</button>';
-const IMG={accueil:'p-accueil',jour:'p-matchs',match:'p-fiche-match',nouveau:'p-ajout-match',communaute:'p-membres',chat:'p-chat',concours:'p-concours',profil:'p-profil',avatar:'p-avatar'};
+const IMG={accueil:'p-accueil',jour:'p-matchs',match:'p-fiche-match',nouveau:'p-ajout-match',communaute:'p-membres',chat:'p-chat',concours:'p-concours',profil:'p-profil',avatar:'p-avatar',pro:'p-membres'};
 const SVG=p=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
 const TABS=[
  ['jour','Matchs',SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7.5l3.6 2.6-1.4 4.2H9.8L8.4 10.1z"/><path d="M12 3v4.5M3.5 9.5l4.9.6M20.5 9.5l-4.9.6M6 19l2.8-4.7M18 19l-2.8-4.7"/>')],
@@ -846,7 +852,7 @@ const TABS=[
  ['chat','Chat',SVG('<path d="M4 5h16v11H10l-4 4v-4H4z"/><path d="M8 9.5h8M8 12.5h5"/>')],
  ['concours','Concours',SVG('<path d="M3.5 7.5h17v3a2 2 0 0 0 0 3.5v3h-17v-3a2 2 0 0 0 0-3.5z"/><path d="M14 7.5v9" stroke-dasharray="1.5 2"/>')],
  ['profil','Profil',SVG('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.4-6.4 7.5-6.4s7.5 2.4 7.5 6.4"/>')]];
-const barH=p=>{const a=(p==='match')?'jour':(p==='avatar'?'profil':p);
+const barH=p=>{const a=(p==='match')?'jour':((p==='avatar'||p==='pro')?'profil':p);
   return '<div class="bar2">'+TABS.map(t=>'<button class="'+(t[0]===a?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[2]+'<span>'+t[1]+'</span></button>').join('')+'</div>';};
 const SG=(p,inner)=>'<div id="sg" class="pg-'+p+'"><img class="bgi" src="'+IMG[p]+'.webp" alt="Le Labo du Clos">'+FXH+inner+(p!=='accueil'?barH(p):'')+'</div>';
 function fit(){const s=$('sg');if(!s)return;const k=s.clientWidth/DW;s.style.setProperty('--k',k.toFixed(4));document.documentElement.style.fontSize=Math.min(19,Math.max(13,k*28.8)).toFixed(1)+'px';}
@@ -859,7 +865,7 @@ const PNL=(x,y,w,h,html,bg,id)=>EL(x,y,w,h,html,'pnl mob','background:'+(bg||'rg
 
 async function mob(p){
   $('flou').style.backgroundImage='url('+IMG[p]+'.webp)';$('menu').style.display='none';
-  const W={accueil:mAccueil,jour:mJour,match:mMatch,nouveau:mNouveau,communaute:mCom,avatar:mAvatar,chat:mChat,concours:mConc,profil:mProfil};
+  const W={pro:mPro,accueil:mAccueil,jour:mJour,match:mMatch,nouveau:mNouveau,communaute:mCom,avatar:mAvatar,chat:mChat,concours:mConc,profil:mProfil};
   try{await W[p]($('mobc'));}catch(e){toast('Erreur de la page : '+(e&&e.message||e),1);}
   tick();
 }
@@ -920,7 +926,7 @@ async function mMatch(c){
    PNL(104,1004,496,180,
      (lock?'<small>Match commencé : pronostic fermé.</small>':'')+
      '<input id="df" inputmode="numeric" placeholder="Différence de buts (facultatif)" value="'+esc(pr&&pr.diff_buts)+'">'+
-     ((m.cote_dom?'<small>📊 Cotes moyennes : 1 → '+m.cote_dom+(m.cote_nul?' · N → '+m.cote_nul:'')+' · 2 → '+m.cote_ext+'</small><br>':'')+(m.meteo?'<small>'+esc(m.meteo)+'</small>':'')+(m.termine?'<h3>Terminé : '+m.score_dom+' - '+m.score_ext+'</h3>':''))+
+     ((m.cote_dom?'<small>📊 Cotes moyennes : 1 → '+m.cote_dom+(m.cote_nul?' · N → '+m.cote_nul:'')+' · 2 → '+m.cote_ext+'</small><br>':'')+(m.meteo?'<small>'+esc(m.meteo)+'</small>':'')+(m.mouvement&&m.mouvement.alerte?'<br><small>⚡ Mouvement de cote : 1 → '+m.mouvement.dom+' % · 2 → '+m.mouvement.ext+' %</small>':'')+(m.termine?'<h3>Terminé : '+m.score_dom+' - '+m.score_ext+'</h3>':''))+
      '<div class="cd"><h3>🤖 Pronostic du Labo</h3>'+lh+'<small>Estimation indicative, pas un conseil de paris.</small></div>'+
      (isAdmin()?'<div class="cd"><h3>⚙️ Administrateur</h3><div class="lg"><input id="rd" inputmode="numeric" placeholder="Buts dom."><input id="re" inputmode="numeric" placeholder="Buts ext."></div><select id="rm"><option value="">Mi-temps réelle</option><option value="1">Dom. mène</option><option value="N">Nul</option><option value="2">Ext. mène</option></select><input id="rb" placeholder="Buteurs (séparés par des virgules)"><button class="bo" style="width:100%" onclick="resultat()">Valider le résultat</button><button class="rouge" onclick="supprimer()">Supprimer ce match</button></div>':''),
      'rgba(6,10,34,.97)')));
@@ -1054,7 +1060,7 @@ async function mProfil(c){
    BTN(479,649,101,50,'OK',"savePseudo($('ps').value)",false,'gold sm')+
    PNL(114,734,474,219,
     '<div class="lg"><span>Membre depuis</span><b>'+new Date(U.created_at).toLocaleDateString('fr-FR')+'</b></div><div class="lg"><span>Points</span><b>'+(PR.points||0)+'</b></div><div class="lg"><span>Amis</span><b>'+Math.max(0,(cc.count||1)-1)+'</b></div><div class="lg"><span>Dernier pronostic</span><b>'+(l.data&&l.data[0]?new Date(l.data[0].created_at).toLocaleDateString('fr-FR'):'—')+'</b></div><div class="lg"><span>Niveau d\'activité</span><b>Niv. '+(1+Math.floor((n.count||0)/5))+'</b></div>'+
-    (isAdmin()?'<button class="bo" style="width:100%;margin-top:8px" onclick="adminModal()">⚙️ Administration</button>':''),'rgba(6,10,34,.9)')+
+    '<button class="bo" style="width:100%;margin-top:8px" onclick="go(\'pro\')">📈 Espace Pro (simulation)</button>'+(isAdmin()?'<button class="bo" style="width:100%;margin-top:8px" onclick="adminModal()">⚙️ Administration</button>':''),'rgba(6,10,34,.9)')+
    BTN(114,991,474,73,(mu?'♫':'🔇')+' Musique','musique()',false,'cyan mus')+
    BTN(114,1098,474,75,'⏻ Se déconnecter','sortir()',false,'red')));
 }
@@ -1072,6 +1078,202 @@ function mAvatar(c){
    BTN(140,1294,380,34,'Plus tard',"go('jour')",false,'small')));
 }
 function avPick(k){avSel=k;document.querySelectorAll('.avb').forEach(e=>e.classList.toggle('on',e.dataset.k===k));$('avprev').innerHTML=av(k,230);$('avnom').textContent=AV[k][1];son([880,1320]);}
+
+
+// ===================== ESPACE PRO (simulation) =====================
+// Outils de « pronostiqueur professionnel » : valeur espérée, mise de Kelly fractionnée,
+// capital virtuel, historique du modèle, backtest. AUCUN argent réel : tout est en capital virtuel.
+const RISQ = { prudent: { f: .10, ev: .06, plaf: 2, lib: 'Prudent' }, equilibre: { f: .25, ev: .04, plaf: 3, lib: 'Équilibré' }, agressif: { f: .50, ev: .02, plaf: 5, lib: 'Agressif' } };
+const W_MARCHE = 0.5;   // part du marché dans la probabilité « prudente » utilisée pour la valeur espérée
+let PS = 'conseils';
+const eur = x => (Math.round(x * 100) / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' € virtuels';
+const pc = x => Math.round(x * 100) + ' %';
+const reg = () => ({ risque: RISQ[PR.risque] ? PR.risque : 'equilibre', contrarian: PR.contrarian == null ? 50 : Number(PR.contrarian), depart: Number(PR.bankroll_depart) || 1000, plafond: Number(PR.plafond_pct) || 3, stop: Number(PR.stop_loss_pct) || 20 });
+const nomIssue = (m, k) => k === '1' ? m.equipe1 : k === '2' ? m.equipe2 : 'Match nul';
+
+// Probabilités du marché, sans la marge des bookmakers
+function marche(m) {
+  if (!m.cote_dom || !m.cote_ext) return null;
+  const q = { '1': 1 / m.cote_dom, '2': 1 / m.cote_ext };
+  if (m.cote_nul) q.N = 1 / m.cote_nul;
+  const t = Object.values(q).reduce((a, b) => a + b, 0);
+  for (const k in q) q[k] /= t;
+  return q;
+}
+// Valeur espérée (EV) et mise de Kelly fractionnée pour chaque issue
+function evaluer(p, q, cotes, risque, bankroll, plafond) {
+  const out = [];
+  for (const k of Object.keys(p)) {
+    const o = { '1': cotes.cote_dom, N: cotes.cote_nul, '2': cotes.cote_ext }[k];
+    if (!o || !q[k] || !(p[k] > 0)) continue;
+    const pu = (1 - W_MARCHE) * p[k] + W_MARCHE * q[k];       // probabilité prudente (modèle + marché)
+    const ev = pu * o - 1, kelly = (pu * o - 1) / (o - 1);
+    const part = Math.max(0, Math.min(RISQ[risque].f * kelly, plafond / 100));
+    out.push({ k, o, p: p[k], q: q[k], pu, ev, kelly, part, mise: Math.round(part * bankroll * 100) / 100 });
+  }
+  return out;
+}
+// Recommandation : profil de risque + degré de contrarianisme
+function recommander(cotes, probas, r, bankroll) {
+  const q = marche(cotes);
+  if (!q || !probas) return null;
+  const ev = evaluer(probas, q, cotes, r.risque, bankroll, r.plafond);
+  const fav = Object.keys(q).sort((a, b) => q[b] - q[a])[0];
+  const mode = r.contrarian <= 30 ? 'suivre' : r.contrarian >= 70 ? 'contrarien' : 'neutre';
+  const ok = ev.filter(x => x.ev >= RISQ[r.risque].ev && x.part > 0 && (mode === 'neutre' || (mode === 'suivre' ? x.k === fav : x.k !== fav))).sort((a, b) => b.ev - a.ev);
+  return { q, ev, fav, mode, best: ok[0] || null };
+}
+const courbe = v => {
+  if (v.length < 2) return '<small>Pas assez de données pour tracer une courbe.</small>';
+  const mn = Math.min(...v), mx = Math.max(...v), h = 70, w = 300, d = mx - mn || 1;
+  return '<svg viewBox="0 0 ' + w + ' ' + (h + 6) + '" style="width:100%;height:auto"><polyline fill="none" stroke="#ffd34d" stroke-width="2" points="' + v.map((y, i) => (i * w / (v.length - 1)).toFixed(1) + ',' + (h - (y - mn) / d * h + 3).toFixed(1)).join(' ') + '"/></svg>';
+};
+function drawdown(v) { let pic = v[0] || 0, dd = 0; for (const x of v) { if (x > pic) pic = x; if (pic > 0) dd = Math.max(dd, (pic - x) / pic); } return dd; }
+
+function proShell(c, inner) {
+  const T = { conseils: 'Conseils (simulation)', capital: 'Mon capital virtuel', modele: 'Performance du modèle', backtest: 'Backtest', reglages: 'Mes réglages', aide: 'Règles et sécurité' }[PS];
+  const P = (k, t, i) => BTN([51, 205, 359, 513][i], 576, [138, 138, 138, 139][i], 65, t, "PS='" + k + "';go('pro')", PS === k, 'pill');
+  put(c, SG('pro',
+    TTL(104, 348, 494, 75, T, T.length > 22 ? 32 : 38) +
+    BTN(53, 456, 242, 85, '💡 Conseils', "PS='conseils';go('pro')", PS === 'conseils', 'big') +
+    BTN(316, 456, 242, 85, '💰 Capital', "PS='capital';go('pro')", PS === 'capital', 'big') +
+    BTN(574, 456, 83, 84, '🔄', "go('pro')", false, 'round') +
+    P('modele', '📈 Modèle', 0) + P('backtest', '🧪 Test', 1) + P('reglages', '⚙️ Réglages', 2) + P('aide', '🛡️ Règles', 3) +
+    PNL(58, 684, 590, 525, '<div class="warn">🎮 Simulation : capital virtuel, aucun argent réel. Aucun gain n\'est garanti.</div>' + inner)));
+}
+async function mPro(c) {
+  proShell(c, '<small>Chargement…</small>');
+  const f = { conseils: proConseils, capital: proCapital, modele: proModele, backtest: proBacktest, reglages: proReglages, aide: proAide }[PS];
+  const html = await f();
+  if (page === 'pro') proShell(c, html);
+}
+async function chargerParis() {
+  const { data } = await sb.from('paris_sim').select('*').eq('user_id', U.id).order('created_at', { ascending: true });
+  return data || [];
+}
+const capitalDe = (paris, depart) => depart + paris.reduce((s, p) => s + (Number(p.gain) - Number(p.mise)), 0);
+
+// ---- Conseils : valeur, mise conseillée, explication ----
+async function proConseils() {
+  if (!MS.length) await chargerMS();
+  const r = reg(), now = Date.now();
+  const ms = MS.filter(m => !m.termine && m.date_match && new Date(m.date_match) > now && m.cote_dom && m.cote_ext);
+  const ids = ms.map(m => m.id);
+  const [lp, paris] = await Promise.all([ids.length ? sb.from('labo_pronos').select('match_id,fin,probas,ic,poids,confiance,arguments').eq('type', 'prudent').in('match_id', ids) : { data: [] }, chargerParis()]);
+  const L = {}; (lp.data || []).forEach(x => L[String(x.match_id)] = x);
+  const bk = capitalDe(paris, r.depart);
+  const mode = r.contrarian <= 30 ? 'Je suis le consensus du marché' : r.contrarian >= 70 ? 'Je cherche les paris à contre-courant' : 'Neutre';
+  const tete = '<div class="cd"><small>Profil : <b>' + RISQ[r.risque].lib + '</b> · ' + mode + '<br>Capital virtuel : <b>' + eur(bk) + '</b> · plafond par pari : ' + r.plafond + ' %</small></div>';
+  const cartes = ms.map(m => {
+    const l = L[String(m.id)], rec = l && l.probas ? recommander(m, l.probas, r, bk) : null;
+    if (!rec) return '<div class="cd"><b>' + esc(m.equipe1) + ' – ' + esc(m.equipe2) + '</b><br><small>' + fdate(m) + ' · probabilités détaillées pas encore disponibles pour ce match.</small></div>';
+    const lignes = Object.keys(l.probas).map(k => { const e = rec.ev.find(x => x.k === k); return '<tr><td>' + esc(nomIssue(m, k)) + '</td><td>' + pc(l.probas[k]) + '</td><td>' + pc(rec.q[k]) + '</td><td class="' + (e && e.ev > 0 ? 'evp' : 'evn') + '">' + (e ? (e.ev >= 0 ? '+' : '') + Math.round(e.ev * 100) + ' %' : '—') + '</td></tr>'; }).join('');
+    const b = rec.best;
+    const reco = b ? '<div class="cd or">✅ <b>Valeur détectée : ' + esc(nomIssue(m, b.k)) + '</b> à la cote ' + b.o + '<br><small>Valeur espérée prudente : +' + Math.round(b.ev * 100) + ' % · mise conseillée : <b>' + eur(b.mise) + '</b> (' + (b.part * 100).toFixed(1).replace('.', ',') + ' % du capital, Kelly fractionné)</small><br><button class="bo" onclick="parier(\'' + esc(m.id) + '\',\'' + b.k + '\',' + b.o + ',' + b.mise + ')">Parier en simulation</button></div>'
+      : '<small>Aucun pari conseillé : pas assez de valeur pour ton profil' + (rec.mode !== 'neutre' ? ' avec ton réglage « ' + (rec.mode === 'suivre' ? 'suivre le marché' : 'à contre-courant') + ' »' : '') + '.</small>';
+    const expl = 'Le modèle donne ' + pc(l.probas[l.fin]) + ' à « ' + nomIssue(m, l.fin) + ' » contre ' + pc(rec.q[l.fin] || 0) + ' pour le marché. Pour rester prudent, la valeur espérée mélange ' + pc(1 - W_MARCHE) + ' de modèle et ' + pc(W_MARCHE) + ' de marché.' + (rec.fav !== l.fin ? ' Le choix du Labo va à contre-courant du favori du marché (' + esc(nomIssue(m, rec.fav)) + ').' : ' Le choix du Labo suit le favori du marché.');
+    return '<div class="cd"><b>' + esc(m.equipe1) + ' – ' + esc(m.equipe2) + '</b> <small>' + fdate(m) + '</small>' + (m.mouvement && m.mouvement.alerte ? '<br><small>⚡ Mouvement de cote détecté (1 : ' + m.mouvement.dom + ' % · 2 : ' + m.mouvement.ext + ' %) : le marché a peut-être reçu une information.</small>' : '') +
+      '<table><tr><th></th><th>Modèle</th><th>Marché</th><th>Valeur</th></tr>' + lignes + '</table>' +
+      (l.ic ? '<small>📏 Plage d\'incertitude du modèle sur son choix : ' + pc(l.ic.bas) + ' à ' + pc(l.ic.haut) + ' (' + l.ic.niveau + ' % des simulations).</small><br>' : '') +
+      reco + '<details><summary>Pourquoi ?</summary><div class="why">' + esc(expl) + '<br>' + esc(l.arguments || '').replace(/\n/g, '<br>') + '</div></details></div>';
+  }).join('');
+  return tete + (cartes || '<div class="cd"><small>Aucun match à venir avec des cotes pour le moment.</small></div>');
+}
+async function parier(mid, k, cote, mise) {
+  if (!confirm('Parier ' + eur(mise) + ' sur cette issue ? (simulation, aucun argent réel)')) return;
+  const { error } = await sb.from('paris_sim').insert({ match_id: String(mid), issue: k, cote: cote, mise: mise });
+  if (error) return toast(error.message, 1);
+  sonValide(); toast('Pari simulé enregistré'); go('pro');
+}
+
+// ---- Capital : mises, stop-loss, drawdown ----
+async function proCapital() {
+  const r = reg(), paris = await chargerParis();
+  if (!MS.length) await chargerMS();
+  const bk = capitalDe(paris, r.depart);
+  const reglés = paris.filter(p => p.statut !== 'en_cours').sort((a, b) => new Date(a.regle_at) - new Date(b.regle_at));
+  let eq = r.depart; const serie = [eq]; reglés.forEach(p => { eq += Number(p.gain) - Number(p.mise); serie.push(eq); });
+  const lundi = new Date(); lundi.setUTCHours(0, 0, 0, 0); lundi.setUTCDate(lundi.getUTCDate() - ((lundi.getUTCDay() + 6) % 7));
+  const sem = reglés.filter(p => new Date(p.regle_at) >= lundi).reduce((s, p) => s + Number(p.gain) - Number(p.mise), 0);
+  const seuil = r.depart * r.stop / 100, perte = Math.max(0, -sem), atteint = perte >= seuil;
+  const nm = id => { const m = MS.find(x => String(x.id) === String(id)); return m ? m.equipe1 + ' – ' + m.equipe2 : 'Match ' + id; };
+  return '<div class="cd or"><h3>💰 ' + eur(bk) + '</h3><small>Capital de départ : ' + eur(r.depart) + ' · résultat : ' + (bk - r.depart >= 0 ? '+' : '') + eur(bk - r.depart) + '</small><br>' + courbe(serie) + '</div>' +
+    '<div class="cd"><div class="lg"><span>Stop-loss de la semaine</span><b>' + eur(perte) + ' / ' + eur(seuil) + '</b></div><div class="bar"><i style="width:' + Math.min(100, perte / seuil * 100) + '%"></i></div><small>' + (atteint ? '⛔ Seuil atteint : les nouveaux paris sont bloqués jusqu\'à lundi.' : 'Tant que la perte de la semaine reste sous le seuil, tu peux continuer.') + '</small></div>' +
+    '<div class="cd"><div class="lg"><span>Drawdown maximal</span><b>' + pc(drawdown(serie)) + '</b></div><small>Plus forte baisse du capital depuis son sommet.</small></div>' +
+    '<div class="cd"><h3>Mes paris simulés</h3>' + (paris.slice(-15).reverse().map(p => '<div class="lg"><span>' + esc(nm(p.match_id)) + '<br><small>' + p.issue + ' · cote ' + p.cote + ' · mise ' + eur(p.mise) + '</small></span><b>' + (p.statut === 'en_cours' ? '⏳' : p.statut === 'gagne' ? '✅ +' + eur(p.gain - p.mise) : '❌ −' + eur(p.mise)) + '</b></div>').join('') || '<small>Aucun pari pour le moment. Va dans « Conseils » pour en simuler un.</small>') + '</div>';
+}
+
+// ---- Modèle : historique, Brier, ROI, drawdown, calibration ----
+async function proModele() {
+  const [{ data: rows }, { data: st }] = await Promise.all([sb.from('labo_resultats').select('*').order('date_match', { ascending: true }).limit(2000), sb.from('modele_stats').select('*')]);
+  const R = rows || [];
+  if (!MS.length) await chargerMS();
+  const stat = (st || []).map(s => '<div class="lg"><span>' + esc(s.scope) + '</span><small>' + s.n + ' matchs réglés · ' + (s.actif ? '✅ recalibrage actif' : 'calibration non active') + (s.ece_avant != null ? ' · erreur ' + (s.ece_avant * 100).toFixed(1).replace('.', ',') + ' %' : '') + '<br>' + esc(s.note || '') + '</small></div>').join('') || '<small>Pas encore de statistiques de calibration.</small>';
+  if (!R.length) return '<div class="cd"><small>Aucun pronostic du Labo réglé pour l\'instant. L\'historique se remplit quand les résultats des matchs sont saisis par l\'administrateur.</small></div><div class="cd"><h3>Calibration</h3>' + stat + '<small>Le recalibrage automatique démarre à partir de 100 matchs réglés par sport.</small></div>';
+  const n = R.length, bons = R.filter(x => x.correct).length;
+  const brier = R.reduce((s, x) => s + Number(x.brier), 0) / n, ref = R.reduce((s, x) => s + (Number(x.pn) > 0 ? 0.667 : 0.5), 0) / n;
+  const avecC = R.filter(x => x.profit_unite != null), roi = avecC.length ? avecC.reduce((s, x) => s + Number(x.profit_unite), 0) / avecC.length : null;
+  let cum = 0; const serie = [0]; avecC.forEach(x => { cum += Number(x.profit_unite); serie.push(cum); });
+  const base = serie.map(v => v + 100), dd = drawdown(base);
+  const bins = [[0, .4], [.4, .5], [.5, .6], [.6, .7], [.7, 1.01]].map(([a, b]) => { const g = R.filter(x => Number(x.p_pick_brut) >= a && Number(x.p_pick_brut) < b); return g.length ? '<tr><td>' + Math.round(a * 100) + '–' + Math.min(100, Math.round(b * 100)) + ' %</td><td>' + g.length + '</td><td>' + pc(g.reduce((s, x) => s + Number(x.p_pick_brut), 0) / g.length) + '</td><td>' + pc(g.filter(x => x.correct).length / g.length) + '</td></tr>' : ''; }).join('');
+  const nm = id => { const m = MS.find(x => String(x.id) === String(id)); return m ? m.equipe1 + ' – ' + m.equipe2 : 'Match ' + id; };
+  return '<div class="cd or"><h3>📈 ' + n + ' pronostics réglés</h3><div class="lg"><span>Taux de réussite</span><b>' + pc(bons / n) + '</b></div><div class="lg"><span>Score de Brier</span><b>' + brier.toFixed(3).replace('.', ',') + '</b></div><small>Plus il est bas, mieux c\'est. Référence du hasard : ' + ref.toFixed(3).replace('.', ',') + '.</small>' +
+    (roi != null ? '<div class="lg"><span>ROI (mise fixe aux cotes)</span><b>' + (roi >= 0 ? '+' : '') + (roi * 100).toFixed(1).replace('.', ',') + ' %</b></div><div class="lg"><span>Drawdown maximal</span><b>' + pc(dd) + '</b></div>' + courbe(serie) : '') + '</div>' +
+    '<div class="cd"><h3>Calibration</h3><table><tr><th>Proba annoncée</th><th>Matchs</th><th>Moyenne</th><th>Réussite réelle</th></tr>' + bins + '</table><small>Si la réussite réelle est nettement sous la moyenne annoncée, le modèle est trop confiant.</small><br>' + stat + '</div>' +
+    '<div class="cd"><h3>Derniers résultats</h3>' + R.slice(-10).reverse().map(x => '<div class="lg"><span>' + esc(nm(x.match_id)) + '<br><small>pronostic ' + x.pred + ' · réel ' + x.reel + '</small></span><b>' + (x.correct ? '✅' : '❌') + ' Brier ' + Number(x.brier).toFixed(2).replace('.', ',') + '</b></div>').join('') + '</div>';
+}
+
+// ---- Backtest : rejouer la stratégie sur l'historique ----
+let BT = null;
+async function proBacktest() {
+  const r = reg();
+  const sortie = BT ? (BT.n === 0 ? '<div class="cd"><small>Aucun pari n\'aurait été placé avec ton profil sur l\'historique disponible.</small></div>'
+    : '<div class="cd or"><h3>🧪 Résultat du test</h3><div class="lg"><span>Paris simulés</span><b>' + BT.n + '</b></div><div class="lg"><span>Taux de réussite</span><b>' + pc(BT.gagnes / BT.n) + '</b></div><div class="lg"><span>Capital final</span><b>' + eur(BT.final) + '</b></div><div class="lg"><span>ROI sur les mises</span><b>' + (BT.roi >= 0 ? '+' : '') + (BT.roi * 100).toFixed(1).replace('.', ',') + ' %</b></div><div class="lg"><span>Drawdown maximal</span><b>' + pc(BT.dd) + '</b></div>' + courbe(BT.serie) + '</div>') : '';
+  return '<div class="cd"><h3>🧪 Mode simulation (backtest)</h3><small>Rejoue ta stratégie (profil ' + RISQ[r.risque].lib + ', plafond ' + r.plafond + ' %, stop-loss ' + r.stop + ' %) sur les pronostics déjà réglés du Labo, avant toute mise.</small><br><input id="btd" inputmode="numeric" value="' + r.depart + '" placeholder="Capital de départ"><button class="bo" style="width:100%" onclick="lancerBacktest()">Lancer le test</button><small>⚠️ Le passé ne garantit pas l\'avenir. Les cotes utilisées sont les derniers relevés, pas les cotes exactes au moment du pronostic : les résultats sont indicatifs.</small></div>' + sortie;
+}
+async function lancerBacktest() {
+  const r = reg(), depart = Math.max(10, Number($('btd').value) || r.depart);
+  const { data: rows } = await sb.from('labo_resultats').select('*').order('date_match', { ascending: true }).limit(2000);
+  let bk = depart, mises = 0, gagnes = 0, n = 0; const serie = [bk]; let semaine = '', perteSem = 0;
+  for (const x of rows || []) {
+    const d = new Date(x.date_match), lun = new Date(d); lun.setUTCHours(0, 0, 0, 0); lun.setUTCDate(lun.getUTCDate() - ((lun.getUTCDay() + 6) % 7));
+    const cle = lun.toISOString().slice(0, 10); if (cle !== semaine) { semaine = cle; perteSem = 0; }
+    if (perteSem >= depart * r.stop / 100 || bk <= 1) continue;
+    const probas = { '1': Number(x.p1), '2': Number(x.p2) }; if (Number(x.pn) > 0) probas.N = Number(x.pn);
+    const rec = recommander({ cote_dom: x.cote_dom, cote_nul: x.cote_nul, cote_ext: x.cote_ext }, probas, r, bk);
+    if (!rec || !rec.best) continue;
+    const b = rec.best, mise = Math.min(b.mise, bk); if (mise <= 0) continue;
+    const gain = b.k === x.reel ? mise * b.o : 0;
+    bk += gain - mise; mises += mise; n++; if (b.k === x.reel) gagnes++; perteSem += Math.max(0, mise - gain); serie.push(bk);
+  }
+  BT = { n, gagnes, final: bk, roi: mises ? (bk - depart) / mises : 0, dd: drawdown(serie), serie };
+  go('pro');
+}
+
+// ---- Réglages ----
+async function proReglages() {
+  const r = reg();
+  const opt = (v, t, cur) => '<option value="' + v + '"' + (String(cur) === String(v) ? ' selected' : '') + '>' + t + '</option>';
+  return '<div class="cd"><h3>⚙️ Mon profil</h3>' +
+    '<label><small>Tolérance au risque (règle la fraction de Kelly et le seuil de valeur)</small></label><select id="rg_r">' + opt('prudent', 'Prudent : Kelly ÷ 10', r.risque) + opt('equilibre', 'Équilibré : Kelly ÷ 4', r.risque) + opt('agressif', 'Agressif : Kelly ÷ 2', r.risque) + '</select>' +
+    '<label><small>Contrarianisme</small></label><select id="rg_c">' + opt(15, 'Je suis le consensus des bookmakers', r.contrarian <= 30 ? 15 : r.contrarian >= 70 ? 85 : 50) + opt(50, 'Neutre', r.contrarian <= 30 ? 15 : r.contrarian >= 70 ? 85 : 50) + opt(85, 'Je cherche les paris à contre-courant', r.contrarian <= 30 ? 15 : r.contrarian >= 70 ? 85 : 50) + '</select>' +
+    '<label><small>Capital virtuel de départ</small></label><input id="rg_b" inputmode="numeric" value="' + r.depart + '">' +
+    '<label><small>Plafond de mise par pari (% du capital, de 0,5 à 10)</small></label><input id="rg_p" inputmode="decimal" value="' + r.plafond + '">' +
+    '<label><small>Stop-loss hebdomadaire (% du capital de départ, de 5 à 50)</small></label><input id="rg_s" inputmode="decimal" value="' + r.stop + '">' +
+    '<button class="bo" style="width:100%" onclick="sauverReglages()">Enregistrer</button></div>';
+}
+async function sauverReglages() {
+  const v = { risque: $('rg_r').value, contrarian: Number($('rg_c').value), bankroll_depart: Number($('rg_b').value), plafond_pct: Number(String($('rg_p').value).replace(',', '.')), stop_loss_pct: Number(String($('rg_s').value).replace(',', '.')) };
+  const { error } = await sb.from('profiles').update(v).eq('id', U.id);
+  if (error) return toast('Erreur : ' + error.message, 1);
+  Object.assign(PR, v); sonValide(); toast('Réglages enregistrés ✅'); go('pro');
+}
+
+// ---- Règles et sécurité ----
+async function proAide() {
+  return '<div class="cd"><h3>🛡️ Garde-fous</h3><small>• Tout est en <b>capital virtuel</b> : aucun argent réel n\'est engagé ni conseillé.<br>• <b>Aucun gain n\'est garanti.</b> Les bookmakers gardent une marge, et la plupart des parieurs perdent à long terme.<br>• Les probabilités du Labo sont des <b>estimations</b> (classement, buts, domicile/extérieur). Blessures, suspensions, arbitre et météo ne sont pas pris en compte.<br>• La valeur espérée mélange le modèle et le marché pour limiter la confiance excessive du modèle.<br>• Mise : Kelly fractionné, limitée par ton plafond par pari. Un stop-loss hebdomadaire bloque les paris après une trop grosse perte.<br>• Ces limites sont vérifiées <b>côté serveur</b> : elles ne peuvent pas être contournées depuis le navigateur.<br>• Réservé aux majeurs.</small></div>' +
+    '<div class="cd"><h3>Besoin d\'aide ?</h3><small>Si le jeu te pose problème : Joueurs Info Service, 09 74 75 13 13 (appel non surtaxé, 8 h – 2 h), joueurs-info-service.fr.</small></div>';
+}
 
 addEventListener('unhandledrejection',e=>{toast('Erreur : '+((e.reason&&e.reason.message)||e.reason),1);});
 matchMedia('(orientation:portrait)').addEventListener('change',()=>go(page||'accueil'));
