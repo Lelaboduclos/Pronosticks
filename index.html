@@ -1329,27 +1329,5 @@ sb.auth.getSession().then(async({data})=>{if(data.session){const ok=await entrer
  <video id="lc2v" src="ad72abbe9e998d381ad215dfd75e061f.MP4" muted playsinline autoplay preload="auto"></video>
  <button id="lc2skip" type="button">Passer</button>
 </div>
-<script>
-(function(){
- var old=document.getElementById('lcSplash'); if(old) old.remove();
- var s=document.getElementById('lc2'),v=document.getElementById('lc2v'),f=false;
- try{if(sessionStorage.getItem('lc2Seen')==='1'){s.remove();return}}catch(e){}
- function end(){if(f)return;f=true;try{sessionStorage.setItem('lc2Seen','1')}catch(e){}
-  s.classList.add('hide');setTimeout(function(){s.remove()},800)}
- v.addEventListener('ended',function(){setTimeout(end,600)});
- v.addEventListener('error',end);
- document.getElementById('lc2skip').addEventListener('click',end);
- var p=v.play();if(p&&p.catch)p.catch(end);
- setTimeout(function(){if(!f&&v.paused)end()},3000);
- setTimeout(end,15000);
-})();
-</script>
-<style>
-#lc2skip{top:16px!important;bottom:auto!important}
-#lc2nice{position:absolute;right:calc((100vw - min(100vw,100vh))/2);bottom:calc((100vh - min(100vw,100vh))/2);width:calc(min(100vw,100vh)*0.15);height:calc(min(100vw,100vh)*0.075);background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-family:system-ui;font-weight:700;font-size:calc(min(100vw,100vh)*0.03);letter-spacing:.1em}
-</style>
-<script>
-(function(){var s=document.getElementById('lc2');if(!s)return;var d=document.createElement('div');d.id='lc2nice';d.textContent='NICE';s.appendChild(d);})();
-</script>
 </body>
 </html>
