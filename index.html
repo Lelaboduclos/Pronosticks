@@ -1289,5 +1289,35 @@ function astuce(){if(window.astuceVue||installee)return;window.astuceVue=1;
 // ---- Démarrage ----
 sb.auth.getSession().then(async({data})=>{if(data.session){const ok=await entrer();if(!ok)go('accueil');}else go('accueil');});
 </script>
+<style>
+#lcSplash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#02050d;transition:opacity .6s}
+#lcSplash.hide{opacity:0;pointer-events:none}
+.lc-stage{position:relative;width:min(100vw,100vh,960px);aspect-ratio:1/1}
+.lc-stage video,.lc-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#lcLogo{opacity:0;transition:opacity .5s}
+#lcSplash.done #lcLogo{opacity:1}
+#lcSkip{position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:20px;padding:8px 14px;font:14px system-ui}
+</style>
+<div id="lcSplash">
+ <div class="lc-stage">
+  <img id="lcLogo" src="logo-final-960.png" alt="Le Labo du Clos">
+  <video id="lcVideo" muted playsinline preload="auto" poster="poster-debut.jpg"></video>
+ </div>
+ <button id="lcSkip" type="button">Passer</button>
+</div>
+<script>
+(function(){
+ var s=document.getElementById('lcSplash'),v=document.getElementById('lcVideo'),f=false;
+ try{if(sessionStorage.getItem('lcSeen')==='1'){s.remove();return}}catch(e){}
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches){s.remove();return}
+ v.src=Math.min(screen.width,screen.height)<=700?'logo-anim-mobile-540.mp4':'logo-anim-960.mp4';
+ function end(){if(f)return;f=true;s.classList.add('done');try{sessionStorage.setItem('lcSeen','1')}catch(e){}
+  setTimeout(function(){s.classList.add('hide');setTimeout(function(){s.remove()},700)},1200)}
+ v.addEventListener('ended',end);v.addEventListener('error',end);
+ document.getElementById('lcSkip').addEventListener('click',end);
+ var p=v.play();if(p&&p.catch)p.catch(end);
+ setTimeout(function(){if(!f&&v.paused)end()},2500);setTimeout(end,12000);
+})();
+</script>
 </body>
 </html>
