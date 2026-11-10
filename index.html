@@ -292,6 +292,46 @@ span.avt{display:inline-flex;align-items:center;justify-content:center;line-heig
 </style>
 </head>
 <body>
+<!-- INTRO ANIMEE : 1) video  2) illustration du logo  3) application -->
+<style>
+#splash{display:none!important}
+#lc2{position:fixed;inset:0;z-index:2147483647;background:#02050d;display:flex;align-items:center;justify-content:center;transition:opacity .7s}
+#lc2.hide{opacity:0;pointer-events:none}
+.lc2w{position:relative;width:min(100vw,100vh);height:min(100vw,100vh);width:min(100vw,100dvh);height:min(100vw,100dvh)}
+.lc2w video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#lc2nice{position:absolute;right:0;bottom:0;width:15%;height:7.5%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font:700 clamp(10px,2.6vmin,22px) system-ui;letter-spacing:.1em}
+#lc2skip{position:absolute;right:16px;top:calc(16px + env(safe-area-inset-top));background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:20px;padding:8px 14px;font:14px system-ui}
+#lc3{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#16254d 0%,#0b1227 48%,#070a17 100%);opacity:0;visibility:hidden;transition:opacity .7s,visibility .7s}
+#lc3.on{opacity:1;visibility:visible}
+#lc3 img{width:min(80vw,640px);height:auto;filter:drop-shadow(0 0 30px rgba(0,190,255,.28)) drop-shadow(0 0 60px rgba(255,185,60,.2));animation:lc3f 3s ease-in-out infinite}
+@keyframes lc3f{0%,100%{transform:translateY(-6px)}50%{transform:translateY(6px)}}
+</style>
+<div id="lc2">
+ <div class="lc2w">
+  <video id="lc2v" src="ad72abbe9e998d381ad215dfd75e061f.MP4" muted playsinline autoplay preload="auto"></video>
+  <div id="lc2nice">NICE</div>
+ </div>
+ <button id="lc2skip" type="button">Passer</button>
+</div>
+<div id="lc3"><img src="logo-clos.png" alt="Le Labo du Clos"></div>
+<script>
+(function(){
+ var a=document.getElementById('lc2'),b=document.getElementById('lc3'),v=document.getElementById('lc2v'),f1=false,f2=false;
+ try{var t=+sessionStorage.getItem('lcT')||0;if(Date.now()-t<600000){a.remove();b.remove();return}}catch(e){}
+ function fin(){if(f2)return;f2=true;try{sessionStorage.setItem('lcT',String(Date.now()))}catch(e){}
+  b.classList.remove('on');setTimeout(function(){b.remove()},900)}
+ function logo(){if(f1)return;f1=true;b.classList.add('on');a.classList.add('hide');
+  setTimeout(function(){a.remove()},900);setTimeout(fin,2800)}
+ v.addEventListener('ended',function(){setTimeout(logo,300)});
+ v.addEventListener('error',logo);
+ document.getElementById('lc2skip').addEventListener('click',logo);
+ b.addEventListener('click',fin);
+ var p=v.play();if(p&&p.catch)p.catch(logo);
+ setTimeout(function(){if(!f1&&v.paused)logo()},3000);
+ setTimeout(logo,15000);
+})();
+</script>
+
 <!-- Écran d'introduction : voir splash.css et splash.js -->
 <div id="splash" role="img" aria-label="Le Labo du Clos">
   <div class="spl-halo"></div>
@@ -1289,45 +1329,5 @@ function astuce(){if(window.astuceVue||installee)return;window.astuceVue=1;
 // ---- Démarrage ----
 sb.auth.getSession().then(async({data})=>{if(data.session){const ok=await entrer();if(!ok)go('accueil');}else go('accueil');});
 </script>
-<style>
-#lcSplash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#02050d;transition:opacity .6s}
-#lcSplash.hide{opacity:0;pointer-events:none}
-.lc-stage{position:relative;width:min(100vw,100vh,960px);aspect-ratio:1/1}
-.lc-stage video,.lc-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-#lcLogo{opacity:0;transition:opacity .5s}
-#lcSplash.done #lcLogo{opacity:1}
-#lcSkip{position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:20px;padding:8px 14px;font:14px system-ui}
-</style>
-<div id="lcSplash">
- <div class="lc-stage">
-  <img id="lcLogo" src="logo-final-960.png" alt="Le Labo du Clos">
-  <video id="lcVideo" muted playsinline preload="auto" poster="poster-debut.jpg"></video>
- </div>
- <button id="lcSkip" type="button">Passer</button>
-</div>
-<script>
-(function(){
- var s=document.getElementById('lcSplash'),v=document.getElementById('lcVideo'),f=false;
- try{if(sessionStorage.getItem('lcSeen')==='1'){s.remove();return}}catch(e){}
- if(matchMedia('(prefers-reduced-motion: reduce)').matches){s.remove();return}
- v.src=Math.min(screen.width,screen.height)<=700?'logo-anim-mobile-540.mp4':'logo-anim-960.mp4';
- function end(){if(f)return;f=true;s.classList.add('done');try{sessionStorage.setItem('lcSeen','1')}catch(e){}
-  setTimeout(function(){s.classList.add('hide');setTimeout(function(){s.remove()},700)},1200)}
- v.addEventListener('ended',end);v.addEventListener('error',end);
- document.getElementById('lcSkip').addEventListener('click',end);
- var p=v.play();if(p&&p.catch)p.catch(end);
- setTimeout(function(){if(!f&&v.paused)end()},2500);setTimeout(end,12000);
-})();
-</script>
-<style>
-#lc2{position:fixed;inset:0;z-index:99999;background:#02050d;display:flex;align-items:center;justify-content:center;transition:opacity .7s}
-#lc2.hide{opacity:0;pointer-events:none}
-#lc2 video{width:min(100vw,100vh);height:min(100vw,100vh);object-fit:contain}
-#lc2skip{position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:20px;padding:8px 14px;font:14px system-ui}
-</style>
-<div id="lc2">
- <video id="lc2v" src="ad72abbe9e998d381ad215dfd75e061f.MP4" muted playsinline autoplay preload="auto"></video>
- <button id="lc2skip" type="button">Passer</button>
-</div>
 </body>
 </html>
